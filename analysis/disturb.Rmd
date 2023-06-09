@@ -1,0 +1,219 @@
+---
+title: "Disturbance simulations"
+author: "Beni Stocker"
+date: "2022-07-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(patchwork)
+
+## install the rsofun branch 'disturb'
+#remotes::install_github(repo = "computationales/rsofun", ref = "disturb")
+library(rsofun)
+```
+
+## Setup
+
+All parameters, site info, and forcing data is available for an example in the driver object (part of rsofun package)
+```{r}
+  biomee_p_model_drivers$forcing[[1]]
+```
+
+This contains the forcing time series data frame where the disturbance is to be defined as the fraction of aboveground biomass harvested (`harv`). Additional specifications of the disturbance forcing, which are more specific to the simulations done here, are hard-coded (see below). 
+
+
+## Specify forcing
+
+### Disturbance regime
+
+Model is first run to steady state. Then for another 100 years undisturbed (continued steady-state) until first disturbance. After first disturbance left undisturbed for 900 years to allow for recovery (in some simulations recovery may take long). Then a regime of repeated disturbance after simulation year 1000 to investigate disturbance-recovery (non-steady state) dynamics, first at low frequency for 1000 years (disturbance every 250 years), then at high frequency for 1000 years (disturbance every 25 years).
+
+Disturbance is implemented by:
+- year 100 first disturbance applied, then recovery until year 1000
+- year 1000 second disturbance, then every 250 years disturbed for 1000 years
+- ... then every 25 years disturbed for another 1000 years
+
+To be handled by model by (new) forcing time series as input (`harv`)
+```{r}
+fharv <- 0.9
+harv_vec <- rep(0, 999)
+harv_vec[100] <- fharv
+harv_vec <- c(harv_vec, rep(c(fharv, rep(0, 249)), 4), rep(c(fharv, rep(0, 24)), 40), 0)
+
+df_harv <- tibble(year = seq(length(harv_vec)), harv = harv_vec)
+
+df_harv %>% 
+  ggplot(aes(year, harv)) +
+  geom_line() +
+  ylim(0, 1)
+```
+
+### Experimental design
+
+```{r}
+df_sims <- read.csv("~/disturb/simulations_disturb.csv")
+df_sims %>% knitr::kable()
+```
+
+### Create forcing objects
+
+```{r}
+## get mean seasonal cycle and repeat this every year of all simulations
+df_forcing <- biomee_p_model_drivers$forcing[[1]] %>% 
+  mutate(doy = lubridate::yday(date)) %>% 
+  group_by(doy) %>% 
+  summarise(across(is.numeric, mean))
+```
+
+Repeat mean seasonal cycle `nyears` times where `nyears` corresponds to the length of the harvest time series (rows in `df_harv`). The column `year` now signifies simulation year and goes from 1 to `nyears`.
+
+Add harvest forcing to drivers. 
+```{r}
+nyears <- nrow(df_harv)
+
+df_forcing <- df_forcing %>% 
+  slice(rep(1:n(), nyears)) %>% 
+  mutate(year = rep(1:nyears, each = 365))
+```
+
+Add harvest to forcing, assuming harvest on Jan 1st.
+```{r}
+df_forcing_disturb <- df_forcing %>% 
+  left_join(
+    df_harv %>% 
+      mutate(doy = 1),
+    by = c("doy", "year")
+  ) %>% 
+  mutate(harv = ifelse(is.na(harv), 0, harv))
+  
+  # ## add pseudo-date, starting in year 2000
+  # mutate(date = lubridate::ymd("0000-01-01") + lubridate::years(year-1) + lubridate::days(doy-1))
+
+## for control simulation
+df_forcing <- df_forcing %>%
+  mutate(harv = 0)
+```
+
+Add N deposition as NOx and NHy.
+```{r}
+df_forcing <- df_forcing %>% 
+  mutate(nox = 0, nhy = 0)
+
+df_forcing_disturb <- df_forcing_disturb %>% 
+  mutate(nox = 0, nhy = 0)
+```
+
+Create new driver objects.
+```{r}
+## control simulations without disturbance
+biomee_p_model_drivers_xx0 <- biomee_p_model_drivers
+biomee_p_model_drivers_xx0$forcing[[1]] <- df_forcing
+biomee_p_model_drivers_xx0$params_siml[[1]]$firstyeartrend <- 0
+biomee_p_model_drivers_xx0$params_siml[[1]]$nyeartrend <- 3000
+
+## simulations with disturbance
+biomee_p_model_drivers_xx1 <- biomee_p_model_drivers
+biomee_p_model_drivers_xx1$forcing[[1]] <- df_forcing_disturb
+biomee_p_model_drivers_xx1$params_siml[[1]]$firstyeartrend <- 0
+biomee_p_model_drivers_xx1$params_siml[[1]]$nyeartrend <- 3000
+```
+
+
+## Model runs
+
+### sc1
+
+```{r}
+filn <- "data/out_sc1.rds"
+if (!file.exists(filn)){
+  out_sc1 <- runread_biomee_f(
+       biomee_p_model_drivers_xx0,
+       makecheck = TRUE,
+       parallel = FALSE
+       )
+  saveRDS(out_sc1, file = filn)
+} else 
+  out_sc1 <- readRDS(filn)
+```
+
+### sc2
+
+Export of dead biomass from system (not added to soil) is implemented by simply not calling the `plant2soil()` in the subroutine `disturb()` (file `vegetation_biomee.mod.f90`). Comment it out and re-compile before running.
+```{r}
+filn <- "data/out_sc2.rds"
+if (!file.exists(filn)){
+  out_sc2 <- runread_biomee_f(
+       biomee_p_model_drivers_xx1,
+       makecheck = TRUE,
+       parallel = FALSE
+       )
+  saveRDS(out_sc2, filn)
+} else 
+  out_sc2 <- readRDS(filn)
+```
+
+## Analysis
+
+Take annual tile-level outputs (for shorthand).
+```{r}
+out_sc1_ann <- out_sc1$data[[1]]$output_annual_tile
+out_sc2_ann <- out_sc2$data[[1]]$output_annual_tile
+```
+
+
+### Plant C
+
+```{r}
+# model output includes the spinup. Remove it for plotting and overwrite years.
+out_sc1_ann <- out_sc1_ann %>%
+  slice((biomee_p_model_drivers_xx1$params_siml[[1]]$spinupyears + 1):nrow(out_sc1_ann)) %>% 
+  mutate(year = 1:nyears)
+out_sc2_ann <- out_sc2_ann %>%
+  slice((biomee_p_model_drivers_xx1$params_siml[[1]]$spinupyears + 1):nrow(out_sc2_ann)) %>% 
+  mutate(year = 1:nyears)
+  
+gg_sc1 <- out_sc1_ann %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = plantC)) +
+  theme_classic() +
+  geom_vline(xintercept = df_harv %>% filter(harv > 0) %>% pull(year), color = "red", alpha = 0.3) +
+  labs(x = "Year", y = "plant C", title = "Simulation sc1") +
+  ylim(0, 15)
+
+gg_sc2 <- out_sc2_ann %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = plantC)) +
+  theme_classic() +
+  geom_vline(xintercept = df_harv %>% filter(harv > 0) %>% pull(year), color = "red", alpha = 0.3) +
+  labs(x = "Year", y = "plant C", title = "Simulation sc2") +
+  ylim(0, 15)
+
+gg_sc1 /
+  gg_sc2
+```
+
+### Soil C
+
+```{r}
+gg_sc1 <- out_sc1_ann %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = fastSOM + SlowSOM)) +
+  theme_classic() +
+  geom_vline(xintercept = df_harv %>% filter(harv > 0) %>% pull(year), color = "red", alpha = 0.3) +
+  labs(x = "Year", y = "Soil C", title = "Simulation sc1") +
+  ylim(0, 100)
+
+gg_sc2 <- out_sc2_ann %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = fastSOM + SlowSOM)) +
+  theme_classic() +
+  geom_vline(xintercept = df_harv %>% filter(harv > 0) %>% pull(year), color = "red", alpha = 0.3) +
+  labs(x = "Year", y = "Soil C", title = "Simulation sc2") +
+  ylim(0, 100)
+
+gg_sc1 /
+  gg_sc2
+```
