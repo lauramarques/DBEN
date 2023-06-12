@@ -1,3 +1,7 @@
+# This script runs the simulations for the DBEN project
+# P0: Baseline run (P0 spinup + 30 + clear cut + 420)
+# PS1-PS6: Sensitivity runs with an increase in disturbance rate. 
+# We implemented the subroutine reset_vegn_initial and call it with a frequency of 100,75,50,25,15,10 yrs (see biosphere.biomee.mod.f90)
 
 # load packages
 library(rsofun)
@@ -159,86 +163,38 @@ df_soiltexture <- bind_rows(
   bottom = tibble(layer = "bottom", fsand = 0.4, fclay = 0.3, forg = 0.1, fgravel = 0.1)
 )
 
-# Disturbance regime 
-
-#This contains the forcing time series data frame where the disturbance is to be defined as the fraction 
-#of aboveground biomass harvested (`harv`). Additional specifications of the disturbance forcing, 
-#which are more specific to the simulations done here, are hard-coded (see below). 
-
-#Model is first run to steady state. Then for another 100 years undisturbed (continued steady-state) 
-#until first disturbance. After first disturbance left undisturbed for 900 years to allow for 
-#recovery (in some simulations recovery may take long). Then a regime of repeated disturbance after 
-#simulation year 1000 to investigate disturbance-recovery (non-steady state) dynamics, 
-#first at low frequency for 1000 years (disturbance every 250 years), then at high frequency for 1000 
-#years (disturbance every 25 years).
-
-# Disturbance is implemented by:
-# - year 100 first disturbance applied, then recovery until year 1000
-# - year 1000 second disturbance, then every 250 years disturbed for 1000 years
-# - ... then every 25 years disturbed for another 1000 years
-
-#To be handled by model by (new) forcing time series as input (`harv`)
-fharv <- 0.9
-harv_vec <- rep(0, 999)
-harv_vec[100] <- fharv
-harv_vec <- c(harv_vec, rep(c(fharv, rep(0, 249)), 4), rep(c(fharv, rep(0, 24)), 40), 0)
-df_harv <- tibble(year = seq(length(harv_vec)), harv = harv_vec)
-
-df_harv <- tibble(year = seq(1:450), harv = c(rep(0,200),0,rep(0,249)))
-#df_harv <- tibble(year = seq(1:450), harv = c(rep(0,100),rep(c(fharv, rep(0, 69)), 5)))
-
-#df_harv %>%  ggplot(aes(year, harv)) + geom_line() + ylim(0, 1)
-
 ## Define forcing data ####
-biomee_forcing_BCI <- read.csv("~/Documents/Collaborations/DBEN/cru_jra_1901-2020/biomee_forcing_BCI.csv")
+biomee_forcing_BCI <- read.csv(paste0(here::here(), "/data/inputs/biomee_forcing_BCI.csv"))
 biomee_forcing_BCI
 df_forcing <- biomee_forcing_BCI
 
 ## Define CO2 ####
-df_forcing$co2 <- 412 # 562
+df_forcing$co2 <- 412
 
 # Repeat mean seasonal cycle `nyears` times # Add harvest forcing to drivers. 
-nyears <- nrow(df_harv)/length(unique(biomee_forcing_BCI$year))
+nyears <- params_siml$nyeartrend/length(unique(biomee_forcing_BCI$year))
 df_forcing <- df_forcing %>% 
   slice(rep(1:n(), nyears)) %>% rename(yearID=year) %>%
-  mutate(year = rep(1:450, each = 365)) %>% relocate(year, .after=yearID) %>%
-  mutate(hour=11.5)
-
-# Add harvest to forcing, assuming harvest on Jan 1st.
-df_forcing_disturb <- df_forcing %>% 
-  left_join(
-    df_harv %>% 
-      mutate(doy = 1),
-    by = c("doy", "year")
-  ) %>% 
-  mutate(harv = ifelse(is.na(harv), 0, harv))
-
-## for control simulation
-df_forcing <- df_forcing %>%
-  mutate(harv = 0)
-
-# Add N deposition as NOx and NHy.
-df_forcing <- df_forcing %>% 
-  mutate(nox = 0, nhy = 0)
-
-df_forcing_disturb <- df_forcing_disturb %>% 
-  mutate(nox = 0, nhy = 0)
+  mutate(year = rep(1:450, each = 365),
+         hour = 11.5,
+         harv = 0, nox = 0, nhy = 0) %>% 
+  relocate(year, .after=yearID) 
 
 ## for versions above 4.0
-df_drivers_disturb <-tibble(sitename = site_info$sitename,
-                            site_info = list(tibble(site_info)),
-                            params_siml = list(tibble(params_siml)),
-                            params_tile = list(tibble(params_tile)),
-                            params_species=list(tibble(params_species)),
-                            params_soil=list(tibble(params_soil)),
-                            init_cohort=list(tibble(init_cohort)),
-                            init_soil=list(tibble(init_soil)),
-                            forcing=list(tibble(df_forcing_disturb)),
-                            .name_repair = "unique")
+df_drivers <-tibble(sitename = site_info$sitename,
+                    site_info = list(tibble(site_info)),
+                    params_siml = list(tibble(params_siml)),
+                    params_tile = list(tibble(params_tile)),
+                    params_species=list(tibble(params_species)),
+                    params_soil=list(tibble(params_soil)),
+                    init_cohort=list(tibble(init_cohort)),
+                    init_soil=list(tibble(init_soil)),
+                    forcing=list(tibble(df_forcing)),
+                    .name_repair = "unique")
 
 ### Run the model
 out_sc1 <- runread_biomee_f(
-  df_drivers_disturb,
+  df_drivers,
   makecheck = TRUE,
   parallel = FALSE
 )
@@ -287,59 +243,32 @@ g6
 
 ## Outputs ####
 ### P0 ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_cohorts.csv"))
 
 ### PS-1 (0.01 or nfrequency=100) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS1_BCI_aCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS1_BCI_aCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS1_BCI_aCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS1_BCI_aCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS1_BCI_aCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS1_BCI_aCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS1_BCI_aCO2_annual_cohorts.csv"))
 
 ### PS-2 (0.02 or nfrequency=75) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS2_BCI_aCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS2_BCI_aCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS2_BCI_aCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS2_BCI_aCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS2_BCI_aCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS2_BCI_aCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS2_BCI_aCO2_annual_cohorts.csv"))
 
 ### PS-3 (0.04 or nfrequency=50) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS3_BCI_aCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS3_BCI_aCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS3_BCI_aCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS3_BCI_aCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS3_BCI_aCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS3_BCI_aCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS3_BCI_aCO2_annual_cohorts.csv"))
 
 ### PS-4 (0.08 or nfrequency=25) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS4_BCI_aCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS4_BCI_aCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS4_BCI_aCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS4_BCI_aCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS4_BCI_aCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS4_BCI_aCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS4_BCI_aCO2_annual_cohorts.csv"))
 
 ### PS-5 (0.20 or nfrequency=15) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS5_BCI_aCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS5_BCI_aCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS5_BCI_aCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS5_BCI_aCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS5_BCI_aCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS5_BCI_aCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS5_BCI_aCO2_annual_cohorts.csv"))
 
 ### PS-6 (0.40 or nfrequency=10) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS6_BCI_aCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS6_BCI_aCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS6_BCI_aCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/412ppm/BiomeE_PS6_BCI_aCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/412ppm/BiomeE_PS6_BCI_aCO2_hourly_tile.csv")
-
-library(rsofun)
-library(dplyr)
-library(ggplot2)
-library(patchwork)
-library(multidplyr)
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS6_BCI_aCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS6_BCI_aCO2_annual_cohorts.csv"))
 
 # CO2 562 ppm ####
 
@@ -497,86 +426,38 @@ df_soiltexture <- bind_rows(
   bottom = tibble(layer = "bottom", fsand = 0.4, fclay = 0.3, forg = 0.1, fgravel = 0.1)
 )
 
-# Disturbance regime 
-
-#This contains the forcing time series data frame where the disturbance is to be defined as the fraction 
-#of aboveground biomass harvested (`harv`). Additional specifications of the disturbance forcing, 
-#which are more specific to the simulations done here, are hard-coded (see below). 
-
-#Model is first run to steady state. Then for another 100 years undisturbed (continued steady-state) 
-#until first disturbance. After first disturbance left undisturbed for 900 years to allow for 
-#recovery (in some simulations recovery may take long). Then a regime of repeated disturbance after 
-#simulation year 1000 to investigate disturbance-recovery (non-steady state) dynamics, 
-#first at low frequency for 1000 years (disturbance every 250 years), then at high frequency for 1000 
-#years (disturbance every 25 years).
-
-# Disturbance is implemented by:
-# - year 100 first disturbance applied, then recovery until year 1000
-# - year 1000 second disturbance, then every 250 years disturbed for 1000 years
-# - ... then every 25 years disturbed for another 1000 years
-
-#To be handled by model by (new) forcing time series as input (`harv`)
-fharv <- 0.9
-harv_vec <- rep(0, 999)
-harv_vec[100] <- fharv
-harv_vec <- c(harv_vec, rep(c(fharv, rep(0, 249)), 4), rep(c(fharv, rep(0, 24)), 40), 0)
-df_harv <- tibble(year = seq(length(harv_vec)), harv = harv_vec)
-
-df_harv <- tibble(year = seq(1:450), harv = c(rep(0,200),0,rep(0,249)))
-#df_harv <- tibble(year = seq(1:450), harv = c(rep(0,100),rep(c(fharv, rep(0, 69)), 5)))
-
-#df_harv %>%  ggplot(aes(year, harv)) + geom_line() + ylim(0, 1)
-
 ## Define forcing data ####
-biomee_forcing_BCI <- read.csv("~/Documents/Collaborations/DBEN/cru_jra_1901-2020/biomee_forcing_BCI.csv")
+biomee_forcing_BCI <- read.csv(paste0(here::here(), "/data/inputs/biomee_forcing_BCI.csv"))
 biomee_forcing_BCI
 df_forcing <- biomee_forcing_BCI
 
 ## Define CO2 ####
-df_forcing$co2 <- 562 # 412
+df_forcing$co2 <- 562
 
 # Repeat mean seasonal cycle `nyears` times # Add harvest forcing to drivers. 
-nyears <- nrow(df_harv)/length(unique(biomee_forcing_BCI$year))
+nyears <- params_siml$nyeartrend/length(unique(biomee_forcing_BCI$year))
 df_forcing <- df_forcing %>% 
   slice(rep(1:n(), nyears)) %>% rename(yearID=year) %>%
-  mutate(year = rep(1:450, each = 365)) %>% relocate(year, .after=yearID) %>%
-  mutate(hour=11.5)
-
-# Add harvest to forcing, assuming harvest on Jan 1st.
-df_forcing_disturb <- df_forcing %>% 
-  left_join(
-    df_harv %>% 
-      mutate(doy = 1),
-    by = c("doy", "year")
-  ) %>% 
-  mutate(harv = ifelse(is.na(harv), 0, harv))
-
-## for control simulation
-df_forcing <- df_forcing %>%
-  mutate(harv = 0)
-
-# Add N deposition as NOx and NHy.
-df_forcing <- df_forcing %>% 
-  mutate(nox = 0, nhy = 0)
-
-df_forcing_disturb <- df_forcing_disturb %>% 
-  mutate(nox = 0, nhy = 0)
+  mutate(year = rep(1:450, each = 365),
+         hour = 11.5,
+         harv = 0, nox = 0, nhy = 0) %>% 
+  relocate(year, .after=yearID) 
 
 ## for versions above 4.0
-df_drivers_disturb <-tibble(sitename = site_info$sitename,
-                            site_info = list(tibble(site_info)),
-                            params_siml = list(tibble(params_siml)),
-                            params_tile = list(tibble(params_tile)),
-                            params_species=list(tibble(params_species)),
-                            params_soil=list(tibble(params_soil)),
-                            init_cohort=list(tibble(init_cohort)),
-                            init_soil=list(tibble(init_soil)),
-                            forcing=list(tibble(df_forcing_disturb)),
-                            .name_repair = "unique")
+df_drivers <-tibble(sitename = site_info$sitename,
+                    site_info = list(tibble(site_info)),
+                    params_siml = list(tibble(params_siml)),
+                    params_tile = list(tibble(params_tile)),
+                    params_species=list(tibble(params_species)),
+                    params_soil=list(tibble(params_soil)),
+                    init_cohort=list(tibble(init_cohort)),
+                    init_soil=list(tibble(init_soil)),
+                    forcing=list(tibble(df_forcing)),
+                    .name_repair = "unique")
 
 ### Run the model
 out_sc1 <- runread_biomee_f(
-  df_drivers_disturb,
+  df_drivers,
   makecheck = TRUE,
   parallel = FALSE
 )
@@ -625,50 +506,29 @@ g6
 
 ## Outputs ####
 ### P0 ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_P0_BCI_eCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_P0_BCI_eCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_P0_BCI_eCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_P0_BCI_eCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_P0_BCI_eCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_P0_BCI_eCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_P0_BCI_eCO2_annual_cohorts.csv"))
 
 ### PS-1 (0.01 or nfrequency=100) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS1_BCI_eCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS1_BCI_eCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS1_BCI_eCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS1_BCI_eCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS1_BCI_eCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS1_BCI_eCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS1_BCI_eCO2_annual_cohorts.csv"))
 
 ### PS-2 (0.02 or nfrequency=75) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS2_BCI_eCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS2_BCI_eCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS2_BCI_eCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS2_BCI_eCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS2_BCI_eCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS2_BCI_eCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS2_BCI_eCO2_annual_cohorts.csv"))
 
 ### PS-3 (0.04 or nfrequency=50) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS3_BCI_eCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS3_BCI_eCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS3_BCI_eCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS3_BCI_eCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS3_BCI_eCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS3_BCI_eCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS3_BCI_eCO2_annual_cohorts.csv"))
 
 ### PS-4 (0.08 or nfrequency=25) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS4_BCI_eCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS4_BCI_eCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS4_BCI_eCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS4_BCI_eCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS4_BCI_eCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS4_BCI_eCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS4_BCI_eCO2_annual_cohorts.csv"))
 
 ### PS-5 (0.20 or nfrequency=15) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS5_BCI_eCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS5_BCI_eCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS5_BCI_eCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS5_BCI_eCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS5_BCI_eCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS5_BCI_eCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS5_BCI_eCO2_annual_cohorts.csv"))
 
 ### PS-6 (0.40 or nfrequency=10) ####
-write.csv(out_sc1$data[[1]]$output_annual_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS6_BCI_eCO2_annual_tile.csv")
-write.csv(out_sc1$data[[1]]$output_annual_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS6_BCI_eCO2_annual_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_daily_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS6_BCI_eCO2_daily_tile.csv")
-write.csv(out_sc1$data[[1]]$output_daily_cohorts,"~/rsofun/data/outputs_mod/562ppm/BiomeE_PS6_BCI_eCO2_daily_cohorts.csv")
-write.csv(out_sc1$data[[1]]$output_hourly_tile,   "~/rsofun/data/outputs_mod/562ppm/BiomeE_PS6_BCI_eCO2_hourly_tile.csv")
+write.csv(out_sc1$data[[1]]$output_annual_tile, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS6_BCI_eCO2_annual_tile.csv"))
+write.csv(out_sc1$data[[1]]$output_annual_cohorts, paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS6_BCI_eCO2_annual_cohorts.csv"))
