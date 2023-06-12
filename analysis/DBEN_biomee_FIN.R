@@ -112,7 +112,6 @@ params_species <- tibble(
   Nfixrate0     = rep(0,16),                      
   NfixCost0     = rep(0,16),                     
   phiCSA        = rep(0.25E-4,16),                
-  #mortrate_d_c  = c(9999,0.05,0.025,0.02,0.02,rep(0.02,11)),  # c(9999,0.05,0.02,0.03,0.01,rep(0.02,11)),
   mortrate_d_c  = c(9999,0.05,0.025,0.03,0.01,rep(0.02,11)),  # c(9999,0.05,0.02,0.03,0.01,rep(0.02,11)),
   mortrate_d_u  = rep(0.075,16),                
   maturalage    = c(9999,0,5,5,5,rep(5,11)), 

@@ -42,5 +42,3 @@ dvar <- ncvar_get(var1_netcdf,"stemmort")
 dlname <- ncatt_get(var1_netcdf,"BAgrowth","long_name")
 dunits <- ncatt_get(var1_netcdf,"BAgrowth","units")
 fillvalue <- ncatt_get(var1_netcdf,"BAgrowth","_FillValue")
-
-

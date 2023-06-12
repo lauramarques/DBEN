@@ -263,6 +263,48 @@ figWBgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,0.6))
 figWBgrowth
 
+plot1 <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
+  group_by(year) %>%
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
+  filter(year>510) %>%
+  mutate(year = year-510) %>%
+  ggplot() + 
+  geom_line(aes(x=year, y=WBgrowth)) +
+  labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
+  scale_y_continuous(lim=c(0,0.8))
+
+BiomeE_P0_FIN_aCO2_annual_tile %>%
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
+  mutate(year = 1:450, NPPw = NPPW) %>%
+  select(year, NPPw) %>%
+  ggplot() + 
+  geom_line(aes(x = year, y = NPPw),col="#377EB8") 
+
+plot2 <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
+  group_by(year) %>%
+  summarise(cmort=sum(c_deadtrees)) %>%
+  filter(year>510) %>%
+  mutate(year = year-510) %>%
+  ggplot() + 
+  geom_line(aes(x = year, y = cmort)) +
+  labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
+  scale_y_continuous(lim=c(0,0.8))
+
+plot3 <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
+  group_by(year) %>%
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum(c_deadtrees)) %>% 
+  mutate(Carbon_balance=WBgrowth-cmort) %>%
+  filter(year>510) %>%
+  mutate(year = year-510) %>%
+  ggplot() + 
+  geom_line(aes(x=year, y=Carbon_balance)) +
+  labs(x = "year", y = "WBgrowth - cmort") + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+
+plot1+plot2+plot3
+
 ## Basal area growth ####
 # BAgrowth
 # Units: m2 ha-1 yr-1

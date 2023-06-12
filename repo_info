@@ -1,2 +1,16 @@
 This repository is sync with lauramarques/DBEN - branch master
-BiomeE model is run from lauramarques/rsofun_lm - branch disturb
+BiomeE model is run from lauramarques/rsofun_lm - branch DBEN
+
+Outputs:
+See protocol in docs folder.
+
+Issues:
+- Check stand structure. Plots in ppt done taking last year of the simul (450) instead of the average.
+- Revise outputs for 8 pfts in all sites. Wbgrowth outputs empty for BCI
+- Grasses seem to have slipped into some woody variables (e.g.Wbgrowth, BA, BAgrowth). Grasses are not included in the woody biomass.
+- Check what causes "carbon imbalance" woody growth_rate - mort_rate = 0 ( in equilibrium) for BiomeEP (see section "Is the budget closed")
+- Height never goes to 0 becuase all plants start from seedlings not seeds.
+- Stemmort looks a bit low. The units are nstems per yr per m2
+- gpp has only 0 values for BCI, revise!
+
+

@@ -13,8 +13,9 @@ library(ncdf4.helpers)
 
 # P0 ####
 # Baseline run FIN  
-BiomeE_P0_FIN_aCO2_annual_tile    <- read.csv("~/rsofun/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv")
-BiomeE_P0_FIN_aCO2_annual_cohorts <- read.csv("~/rsofun/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv")
+BiomeE_P0_FIN_aCO2_annual_tile    <- read.csv("~/DBEN/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv")
+#BiomeE_P0_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
+BiomeE_P0_FIN_aCO2_annual_cohorts <- read.csv("~/DBEN/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv")
 
 PFT_species <- c("Pinus_sylvestris_PFT1","Picea_abies_PFT2","Betula_pendula_PFT3","Grasses_PFT8") 
 PFT <- c(3,4,2,1)
@@ -47,8 +48,8 @@ cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder
   relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
   relocate(`8`,.after =`7`) %>% select(-year)
 # create the netCDF filename 
-ncfname <- paste("~/rsofun/data/outputs_mod/nc_files/412ppm/FIN/", 
-                 "BiomeEP_cveg_P0_FIN_412ppm", ".nc", sep="")
+ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
+                 "BiomeEP_cveg_P0_FIN_412ppm", ".nc", sep=""))
 # define dimensions
 time <- as.array(seq(1,450,1))
 pft <- as.array(seq(1,8,1))
@@ -80,8 +81,8 @@ AGcwood <- BiomeE_P0_FIN_aCO2_annual_tile %>%
   select(year, AGcwood) 
 AGcwood_wid <- AGcwood %>% select(-year)
 # create the netCDF filename 
-ncfname <- paste("~/rsofun/data/outputs_mod/nc_files/412ppm/FIN/", 
-                 "BiomeEP_AGcwood_P0_FIN_412ppm", ".nc", sep="")
+ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
+                        "BiomeEP_AGcwood_P0_FIN_412ppm", ".nc", sep=""))
 # define dimensions
 time <- as.array(seq(1,450,1))
 time_dim <- ncdim_def("time","years",as.double(time)) 
