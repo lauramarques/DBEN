@@ -13,9 +13,8 @@ library(ncdf4.helpers)
 
 # P0 ####
 # Baseline run FIN  
-BiomeE_P0_FIN_aCO2_annual_tile    <- read.csv("~/DBEN/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv")
-#BiomeE_P0_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
-BiomeE_P0_FIN_aCO2_annual_cohorts <- read.csv("~/DBEN/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv")
+BiomeE_P0_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
+BiomeE_P0_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv"))
 
 PFT_species <- c("Pinus_sylvestris_PFT1","Picea_abies_PFT2","Betula_pendula_PFT3","Grasses_PFT8") 
 PFT <- c(3,4,2,1)
