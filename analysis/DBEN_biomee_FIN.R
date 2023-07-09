@@ -151,7 +151,7 @@ init_cohort <- tibble(
   init_cohort_nsc     = rep(0.5,10)   
 )
 
-init_soil <- tibble( #list
+init_soil <- tibble( 
   init_fast_soil_C    = 0.0,    
   init_slow_soil_C    = 0.0,    
   init_Nmineral       = 0.015,  
