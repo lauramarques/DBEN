@@ -306,8 +306,7 @@ figcmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-    scale_colour_discrete(labels = c("Grasses","Betula pendula","Picea abies","Pinus sylvestris")) +
-  scale_y_continuous(lim=c(0,0.7))
+    scale_colour_discrete(labels = c("Grasses","Betula pendula","Picea abies","Pinus sylvestris")) 
 figcmort
 
 figcmort_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 

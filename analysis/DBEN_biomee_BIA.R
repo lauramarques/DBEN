@@ -3,6 +3,11 @@
 # PS1-PS6: Sensitivity runs with an increase in disturbance rate. 
 # We implemented the subroutine reset_vegn_initial and call it with a frequency of 100,75,50,25,15,10 yrs (see biosphere.biomee.mod.f90)
 
+# This script runs the simulations for the DBEN project
+# P0: Baseline run (P0 spinup + 30 + clear cut + 420)
+# PS1-PS6: Sensitivity runs with an increase in disturbance rate. 
+# We implemented the subroutine reset_vegn_initial and call it with a frequency of 100,75,50,25,15,10 yrs (see biosphere.biomee.mod.f90)
+
 # load packages
 library(rsofun)
 library(dplyr)
@@ -111,10 +116,8 @@ params_species <- tibble(
   betaON        = c(9999,0.2,0.2,0.2,0.2,rep(0.2,11)),     
   betaOFF       = c(9999,0.1,0.1,0.1,0.1,rep(0.1,11)),
   seedlingsize  = c(9999,0.01,0.05,0.05,0.05,rep(0.05,11)),  # c(9999,0.005,0.02,0.02,0.06,rep(0.05,11)), 
-  #seedlingsize  = c(9999,0.005,0.02,0.02,0.06,rep(0.05,11)),  
   LNbase        = c(9999,1.0E-3,0.8E-3,0.7E-3,0.4E-3,rep(0.5E-3,11)),  
   lAImax        = c(9999,2.0,3.0,3.0,3.5,rep(3.5,11)), # c(9999,2.0,3.2,3.3,3.5,rep(3.5,11)), 
-  #lAImax        = c(9999,2.0,3.2,3.3,3.5,rep(3.5,11)), 
   Nfixrate0     = rep(0,16),                      
   NfixCost0     = rep(0,16),                     
   phiCSA        = rep(0.25E-4,16),               
@@ -122,11 +125,9 @@ params_species <- tibble(
   mortrate_d_u  = rep(0.075,16),                  
   maturalage    = c(9999,0,5,5,5,rep(5,11)),   
   v_seed        = c(9999,0.1,0.1,0.1,0.1,rep(0.1,11)),  # c(9999,0.4,0.1,0.1,0.1,rep(0.1,11)),   
-  #v_seed        = c(9999,0.4,0.1,0.1,0.1,rep(0.1,11)),   
   fNSNmax       = rep(5,16),                      
   LMA           = c(9999,0.025,0.025,0.025,0.14,rep(0.14,11)), 
   rho_wood      = c(9999,120,350,350,300,rep(300,11)), # c(9999,80,320,350,300,rep(300,11)),  
-  #rho_wood      = c(9999,120,320,350,300,rep(300,11)),         
   alphaBM       = rep(5200,16),                   
   thetaBM       = rep(2.5,16), 
   # add calibratable params
@@ -238,19 +239,6 @@ g5 <- out_sc1$data[[1]]$output_annual_cohorts %>% group_by(PFT,year) %>%
   scale_colour_discrete(labels = c("Grass","Broadleaf1","Broadleaf2","Needleleaf"))
 
 print(g1/g2/g3/g4/g5)
-
-out_sc1$data[[1]]$output_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  ggplot() + 
-  geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
-  labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
-  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
 
 g6 <- out_sc1$data[[1]]$output_annual_tile %>%
   ggplot() +
