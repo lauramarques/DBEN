@@ -69,7 +69,7 @@ figcveg <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -104,7 +104,7 @@ figcwood <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -160,7 +160,7 @@ figlai <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -179,7 +179,7 @@ figCA <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -199,7 +199,7 @@ figBA <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -218,7 +218,7 @@ figheight <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -238,7 +238,7 @@ figWBgrowth <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_P0_BIA_aCO2_annual_cohorts %>% 
@@ -268,7 +268,7 @@ figBAgrowth <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -288,7 +288,7 @@ figcmort <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_P0_BIA_aCO2_annual_cohorts %>% 
@@ -314,6 +314,8 @@ c_balance <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
 figWBgrowth_all+figcmort_all+c_balance
+
+c_balance_BIA_412 <- c_balance + labs(title = "BIA",subtitle="412 ppm")
 
 figcmort_size <- BiomeE_P0_BIA_aCO2_annual_cohorts %>% 
   mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
@@ -346,7 +348,7 @@ figstemmort <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_P0_BIA_aCO2_annual_cohorts %>% 
@@ -377,7 +379,7 @@ figgpp <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -396,7 +398,7 @@ fignpp <- BiomeE_P0_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -494,7 +496,7 @@ figcveg <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -529,7 +531,7 @@ figcwood <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -585,7 +587,7 @@ figlai <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -604,7 +606,7 @@ figCA <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -624,7 +626,7 @@ figBA <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -643,7 +645,7 @@ figheight <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -663,7 +665,7 @@ figWBgrowth <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_P0_BIA_eCO2_annual_cohorts %>% 
@@ -693,7 +695,7 @@ figBAgrowth <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -713,7 +715,7 @@ figcmort <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_P0_BIA_eCO2_annual_cohorts %>% 
@@ -739,6 +741,8 @@ c_balance <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
 figWBgrowth_all+figcmort_all+c_balance
+
+c_balance_BIA_562 <- c_balance + labs(title = "BIA",subtitle="562 ppm")
 
 figcmort_size <- BiomeE_P0_BIA_eCO2_annual_cohorts %>% 
   mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
@@ -771,7 +775,7 @@ figstemmort <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_P0_BIA_eCO2_annual_cohorts %>% 
@@ -802,7 +806,7 @@ figgpp <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -821,7 +825,7 @@ fignpp <- BiomeE_P0_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -919,7 +923,7 @@ figcveg <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -954,7 +958,7 @@ figcwood <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -1010,7 +1014,7 @@ figlai <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -1029,7 +1033,7 @@ figCA <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -1049,7 +1053,7 @@ figBA <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -1068,7 +1072,7 @@ figheight <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -1088,7 +1092,7 @@ figWBgrowth <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>% 
@@ -1118,7 +1122,7 @@ figBAgrowth <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -1138,7 +1142,7 @@ figcmort <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>% 
@@ -1196,7 +1200,7 @@ figstemmort <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>% 
@@ -1227,7 +1231,7 @@ figgpp <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -1246,7 +1250,7 @@ fignpp <- BiomeE_PS1_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -1338,7 +1342,7 @@ figcveg <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -1373,7 +1377,7 @@ figcwood <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -1429,7 +1433,7 @@ figlai <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -1448,7 +1452,7 @@ figCA <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -1468,7 +1472,7 @@ figBA <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -1487,7 +1491,7 @@ figheight <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -1507,7 +1511,7 @@ figWBgrowth <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>% 
@@ -1537,7 +1541,7 @@ figBAgrowth <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -1557,7 +1561,7 @@ figcmort <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>% 
@@ -1615,7 +1619,7 @@ figstemmort <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>% 
@@ -1646,7 +1650,7 @@ figgpp <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -1665,7 +1669,7 @@ fignpp <- BiomeE_PS2_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -1757,7 +1761,7 @@ figcveg <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -1792,7 +1796,7 @@ figcwood <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -1848,7 +1852,7 @@ figlai <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -1867,7 +1871,7 @@ figCA <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -1887,7 +1891,7 @@ figBA <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -1906,7 +1910,7 @@ figheight <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -1926,7 +1930,7 @@ figWBgrowth <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>% 
@@ -1956,7 +1960,7 @@ figBAgrowth <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -1976,7 +1980,7 @@ figcmort <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>% 
@@ -2034,7 +2038,7 @@ figstemmort <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>% 
@@ -2065,7 +2069,7 @@ figgpp <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -2084,7 +2088,7 @@ fignpp <- BiomeE_PS3_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -2176,7 +2180,7 @@ figcveg <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -2211,7 +2215,7 @@ figcwood <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -2267,7 +2271,7 @@ figlai <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -2286,7 +2290,7 @@ figCA <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -2306,7 +2310,7 @@ figBA <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -2325,7 +2329,7 @@ figheight <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -2345,7 +2349,7 @@ figWBgrowth <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>% 
@@ -2375,7 +2379,7 @@ figBAgrowth <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -2395,7 +2399,7 @@ figcmort <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>% 
@@ -2453,7 +2457,7 @@ figstemmort <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>% 
@@ -2484,7 +2488,7 @@ figgpp <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -2503,7 +2507,7 @@ fignpp <- BiomeE_PS4_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -2595,7 +2599,7 @@ figcveg <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -2630,7 +2634,7 @@ figcwood <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -2686,7 +2690,7 @@ figlai <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -2705,7 +2709,7 @@ figCA <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -2725,7 +2729,7 @@ figBA <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -2744,7 +2748,7 @@ figheight <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -2764,7 +2768,7 @@ figWBgrowth <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>% 
@@ -2794,7 +2798,7 @@ figBAgrowth <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -2814,7 +2818,7 @@ figcmort <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>% 
@@ -2872,7 +2876,7 @@ figstemmort <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>% 
@@ -2903,7 +2907,7 @@ figgpp <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -2922,7 +2926,7 @@ fignpp <- BiomeE_PS5_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -3014,7 +3018,7 @@ figcveg <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -3049,7 +3053,7 @@ figcwood <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -3105,7 +3109,7 @@ figlai <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -3124,7 +3128,7 @@ figCA <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -3144,7 +3148,7 @@ figBA <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -3163,7 +3167,7 @@ figheight <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -3183,7 +3187,7 @@ figWBgrowth <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>% 
@@ -3213,7 +3217,7 @@ figBAgrowth <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -3233,7 +3237,7 @@ figcmort <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>% 
@@ -3291,7 +3295,7 @@ figstemmort <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>% 
@@ -3322,7 +3326,7 @@ figgpp <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -3341,7 +3345,7 @@ fignpp <- BiomeE_PS6_BIA_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -3436,7 +3440,7 @@ figcveg <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -3471,7 +3475,7 @@ figcwood <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -3527,7 +3531,7 @@ figlai <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -3546,7 +3550,7 @@ figCA <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -3566,7 +3570,7 @@ figBA <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -3585,7 +3589,7 @@ figheight <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -3605,7 +3609,7 @@ figWBgrowth <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>% 
@@ -3635,7 +3639,7 @@ figBAgrowth <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -3655,7 +3659,7 @@ figcmort <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>% 
@@ -3713,7 +3717,7 @@ figstemmort <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>% 
@@ -3744,7 +3748,7 @@ figgpp <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -3763,7 +3767,7 @@ fignpp <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -3855,7 +3859,7 @@ figcveg <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -3890,7 +3894,7 @@ figcwood <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -3946,7 +3950,7 @@ figlai <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -3965,7 +3969,7 @@ figCA <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -3985,7 +3989,7 @@ figBA <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -4004,7 +4008,7 @@ figheight <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -4024,7 +4028,7 @@ figWBgrowth <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS1_BIA_eCO2_annual_cohorts %>% 
@@ -4054,7 +4058,7 @@ figBAgrowth <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -4074,7 +4078,7 @@ figcmort <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>% 
@@ -4132,7 +4136,7 @@ figstemmort <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>% 
@@ -4163,7 +4167,7 @@ figgpp <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -4182,7 +4186,7 @@ fignpp <- BiomeE_PS2_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -4274,7 +4278,7 @@ figcveg <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -4309,7 +4313,7 @@ figcwood <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -4365,7 +4369,7 @@ figlai <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -4384,7 +4388,7 @@ figCA <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -4404,7 +4408,7 @@ figBA <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -4423,7 +4427,7 @@ figheight <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -4443,7 +4447,7 @@ figWBgrowth <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>% 
@@ -4473,7 +4477,7 @@ figBAgrowth <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -4493,7 +4497,7 @@ figcmort <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>% 
@@ -4551,7 +4555,7 @@ figstemmort <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>% 
@@ -4582,7 +4586,7 @@ figgpp <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -4601,7 +4605,7 @@ fignpp <- BiomeE_PS3_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -4693,7 +4697,7 @@ figcveg <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -4728,7 +4732,7 @@ figcwood <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -4784,7 +4788,7 @@ figlai <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -4803,7 +4807,7 @@ figCA <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -4823,7 +4827,7 @@ figBA <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -4842,7 +4846,7 @@ figheight <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -4862,7 +4866,7 @@ figWBgrowth <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>% 
@@ -4892,7 +4896,7 @@ figBAgrowth <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -4912,7 +4916,7 @@ figcmort <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>% 
@@ -4970,7 +4974,7 @@ figstemmort <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>% 
@@ -5001,7 +5005,7 @@ figgpp <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -5020,7 +5024,7 @@ fignpp <- BiomeE_PS4_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -5112,7 +5116,7 @@ figcveg <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -5147,7 +5151,7 @@ figcwood <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -5203,7 +5207,7 @@ figlai <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -5222,7 +5226,7 @@ figCA <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -5242,7 +5246,7 @@ figBA <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -5261,7 +5265,7 @@ figheight <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -5281,7 +5285,7 @@ figWBgrowth <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>% 
@@ -5311,7 +5315,7 @@ figBAgrowth <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -5331,7 +5335,7 @@ figcmort <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>% 
@@ -5389,7 +5393,7 @@ figstemmort <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>% 
@@ -5420,7 +5424,7 @@ figgpp <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -5439,7 +5443,7 @@ fignpp <- BiomeE_PS5_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
@@ -5531,7 +5535,7 @@ figcveg <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcveg
 
 ## Aboveground woody biomass ####
@@ -5566,7 +5570,7 @@ figcwood <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcwood
 
 ## Carbon mass in wood by size class ####
@@ -5622,7 +5626,7 @@ figlai <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figlai
 
 ## Crown area ####
@@ -5641,7 +5645,7 @@ figCA <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figCA
 
 ## Basal area ####
@@ -5661,7 +5665,7 @@ figBA <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBA
 
 ## 95th percentile of tree height ####
@@ -5680,7 +5684,7 @@ figheight <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figheight
 
 # FLUXES ####
@@ -5700,7 +5704,7 @@ figWBgrowth <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figWBgrowth
 
 figWBgrowth_all <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>% 
@@ -5730,7 +5734,7 @@ figBAgrowth <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figBAgrowth
 
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
@@ -5750,7 +5754,7 @@ figcmort <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figcmort
 
 figcmort_all <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>% 
@@ -5808,7 +5812,7 @@ figstemmort <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figstemmort
 
 figstemmort_size <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>% 
@@ -5839,7 +5843,7 @@ figgpp <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 figgpp
 
 ## NPP - Carbon Mass Flux out of Atmosphere due to Net Primary Production on Land ####
@@ -5858,7 +5862,7 @@ fignpp <- BiomeE_PS6_BIA_eCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
-  scale_colour_discrete(labels = c("Grasses","Tilia cordata","Betula pendula","Picea abies"))
+  scale_colour_discrete(labels = c("PFT8_Grasses","PFT4_Tilia_cordata","PFT3_Betula_pendula","PFT2_Picea_abies"))
 fignpp
 
 ## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land ####
