@@ -11,7 +11,7 @@ library(stringr)
 library(ingestr)
 
 # Precipitation (kg/m2 = mm) ####
-load("~/Documents/Collaborations/DBEN/cru_jra_1901-2020/allyears/forcing_sel_sites_precip.RData")
+load(paste0(here::here(), "/data/inputs/raw/forcing_sel_sites_precip.RData"))
 precip
 precip <- precip %>% rownames_to_column(var="date") %>% 
   mutate(date=gsub('X','',date),date=gsub('\\.','-',date),date=as.Date(date),
@@ -21,7 +21,7 @@ prec_BIA <- precip %>% select(date,doy,year, BIA) %>% rename(prec=BIA)
 prec_BCI <- precip %>% select(date,doy,year, BCI) %>% rename(prec=BCI)
 
 # Relative humidity (%) #### 
-load("~/Documents/Collaborations/DBEN/cru_jra_1901-2020/allyears/forcing_sel_sites_rhum.RData")
+load(paste0(here::here(), "/data/inputs/raw/forcing_sel_sites_rhum.RData"))
 rhum
 rhum <- rhum %>% rownames_to_column(var="date") %>% 
   mutate(date=gsub('X','',date),date=gsub('\\.','-',date),date=as.Date(date),
@@ -31,7 +31,7 @@ rh_BIA <- rhum %>% select(date,doy,year, BIA) %>% rename(rh=BIA) %>% mutate(rh=r
 rh_BCI <- rhum %>% select(date,doy,year, BCI) %>% rename(rh=BCI) %>% mutate(rh=rh*100)
 
 # Air temperature (K, converted to Celsius) ####
-load("~/Documents/Collaborations/DBEN/cru_jra_1901-2020/allyears/forcing_sel_sites_temp.RData")
+load(paste0(here::here(), "/data/inputs/raw/forcing_sel_sites_temp.RData"))
 temp
 temp <- temp %>% rownames_to_column(var="date") %>% 
   mutate(date=gsub('X','',date),date=gsub('\\.','-',date),date=as.Date(date),
@@ -41,7 +41,7 @@ temp_BIA <- temp %>% select(date,doy,year, BIA) %>% rename(temp=BIA) %>% mutate(
 temp_BCI <- temp %>% select(date,doy,year, BCI) %>% rename(temp=BCI) %>% mutate(temp=temp-273.15)
 
 # Total surface downwelling radiation (W/m2) ####
-load("~/Documents/Collaborations/DBEN/cru_jra_1901-2020/allyears/forcing_sel_sites_tswrf.RData")
+load(paste0(here::here(), "/data/inputs/raw/forcing_sel_sites_tswrf.RData"))
 tswrf 
 tswrf <- tswrf %>% rownames_to_column(var="date") %>% 
   mutate(date=gsub('X','',date),date=gsub('\\.','-',date),date=as.Date(date),
@@ -51,7 +51,7 @@ ppfd_BIA <- tswrf %>% select(date,doy,year, BIA) %>% rename(ppfd=BIA)
 ppfd_BCI <- tswrf %>% select(date,doy,year, BCI) %>% rename(ppfd=BCI) 
 
 # Wind speed (m/s) ####
-load("~/Documents/Collaborations/DBEN/cru_jra_1901-2020/allyears/forcing_sel_sites_wind.RData")
+load(paste0(here::here(), "/data/inputs/raw/forcing_sel_sites_wind.RData"))
 wind
 wind <- wind %>% rownames_to_column(var="date") %>% 
   mutate(date=gsub('X','',date),date=gsub('\\.','-',date),date=as.Date(date),
@@ -61,7 +61,7 @@ wind_BIA <- wind %>% select(date,doy,year, BIA) %>% rename(wind=BIA)
 wind_BCI <- wind %>% select(date,doy,year, BCI) %>% rename(wind=BCI)
 
 # CO2 ####
-co2 <- read.csv("~/Documents/Collaborations/DBEN/cru_jra_1901-2020/co2.csv")
+co2 <- read.csv(paste0(here::here(), "/data/inputs/raw/co2.csv"))
 co2 <- co2 %>% rename(co2=CO2)
 
 # PAR (umol/m2/s) - Calculated from radiation after converting units (1W/m2 = 4.6 umol/m2/s) ####
@@ -262,7 +262,7 @@ biomee_forcing_FIN <- biomee_forcing_FIN %>% arrange(factor(year, levels = order
   left_join(df_order_years) %>% relocate(order, .after = year) %>% rename(yearID=year, year=order)
 unique(biomee_forcing_FIN$year)
 
-write.csv(biomee_forcing_FIN,"~/Documents/Collaborations/DBEN/cru_jra_1901-2020/biomee_forcing_FIN.csv")
+write.csv(biomee_forcing_FIN, paste0(here::here(), "/data/inputs/biomee_forcing_FIN.csv"))
 
 ## BIA forcing ####
 
@@ -423,7 +423,7 @@ biomee_forcing_BIA <- biomee_forcing_BIA %>% arrange(factor(year, levels = order
   left_join(df_order_years) %>% relocate(order, .after = year) %>% rename(yearID=year, year=order)
 unique(biomee_forcing_BIA$year)
 
-write.csv(biomee_forcing_BIA,"~/Documents/Collaborations/DBEN/cru_jra_1901-2020/biomee_forcing_BIA.csv")
+write.csv(biomee_forcing_BIA, paste0(here::here(), "/data/inputs/biomee_forcing_BIA.csv"))
 
 ## BCI forcing ####
 
@@ -584,4 +584,4 @@ biomee_forcing_BCI <- biomee_forcing_BCI %>% arrange(factor(year, levels = order
   left_join(df_order_years) %>% relocate(order, .after = year) %>% rename(yearID=year, year=order)
 unique(biomee_forcing_BCI$year)
 
-write.csv(biomee_forcing_BCI,"~/Documents/Collaborations/DBEN/cru_jra_1901-2020/biomee_forcing_BCI.csv")
+write.csv(biomee_forcing_BCI, paste0(here::here(), "/data/inputs/biomee_forcing_BCI.csv"))

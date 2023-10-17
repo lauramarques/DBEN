@@ -3,11 +3,6 @@
 # PS1-PS6: Sensitivity runs with an increase in disturbance rate. 
 # We implemented the subroutine reset_vegn_initial and call it with a frequency of 100,75,50,25,15,10 yrs (see biosphere.biomee.mod.f90)
 
-# This script runs the simulations for the DBEN project
-# P0: Baseline run (P0 spinup + 30 + clear cut + 420)
-# PS1-PS6: Sensitivity runs with an increase in disturbance rate. 
-# We implemented the subroutine reset_vegn_initial and call it with a frequency of 100,75,50,25,15,10 yrs (see biosphere.biomee.mod.f90)
-
 # load packages
 library(rsofun)
 library(dplyr)

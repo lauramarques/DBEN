@@ -206,6 +206,11 @@ g1 <- out_sc1$data[[1]]$output_annual_tile %>%
   scale_y_continuous(lim=c(0,20))
 g1
 
+out_sc1$data[[1]]$output_annual_tile %>%
+  ggplot() +
+  geom_line(aes(x = year, y = (SapwoodC+WoodC)*0.75)) +
+  theme_classic()+labs(x = "Year", y = "AGcwood")
+
 g2 <- out_sc1$data[[1]]$output_annual_cohorts %>% group_by(PFT,year) %>%
   summarise(sumBA=sum(DBH*DBH*pi/4*density/10000)) %>% mutate(PFT=as.factor(PFT)) %>%
   ggplot() +
