@@ -321,6 +321,21 @@ figcmort_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+figcmort_all
+
+AGcwood_var <- BiomeE_P0_FIN_aCO2_annual_tile %>%
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+  select(year, AGcwood)  
+cmort_var <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
+  group_by(year) %>%
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
+  filter(year>510) %>%
+  mutate(year = year-510)
+
+AGcwood_var %>% mutate(cmort=cmort_var$cmort) %>%
+  ggplot() + 
+  geom_line(aes(x = year, y = AGcwood*cmort),col="#377EB8") 
 
 c_balance <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(year) %>%

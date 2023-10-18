@@ -76,6 +76,46 @@ CB %>%
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth-cmort)) 
 
+# check cmort pft and sizeclass for FIN at 562 ppm  ####
+# read cmort for pft
+var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/562ppm/FIN/BiomeEP_cmort_pft_PS4_FIN_562ppm.nc"))
+var1_netcdf
+attributes(var1_netcdf$var)
+attributes(var1_netcdf$dim)
+# get dimensions
+ncvar_get(var1_netcdf, "time")
+ncvar_get(var1_netcdf, "pft")
+# get variables
+dvar <- ncvar_get(var1_netcdf,"cmort")
+str(dvar)
+dvar <- as.data.frame(dvar)
+dvar_cmort <- dvar %>% # mutate(total=V1+V2+V3) %>%
+  mutate(total=rowSums(across(where(is.numeric))))  %>%
+  rownames_to_column("year") %>% mutate(year=as.numeric(year)) 
+str(dvar_cmort)
+dvar_cmort %>%
+  ggplot() + 
+  geom_line(aes(x=year, y=total)) 
+
+# read cmort for size class
+var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/562ppm/FIN/BiomeEP_cmort_size_P0_FIN_562ppm.nc"))
+var1_netcdf
+attributes(var1_netcdf$var)
+attributes(var1_netcdf$dim)
+# get dimensions
+ncvar_get(var1_netcdf, "time")
+ncvar_get(var1_netcdf, "sizeclass")
+# get variables
+dvar <- ncvar_get(var1_netcdf,"cmort")
+str(dvar)
+dvar <- as.data.frame(dvar)
+dvar_cmort <- dvar %>% mutate(total=rowSums(across(where(is.numeric)))) %>%
+  rownames_to_column("year") %>% mutate(year=as.numeric(year)) 
+str(dvar_cmort)
+dvar_cmort %>%
+  ggplot() + 
+  geom_line(aes(x=year, y=total)) 
+
 # check turnover 412 vs. 562 ppm  ####
 
 ## 412 ppm ####
