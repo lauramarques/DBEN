@@ -55,12 +55,12 @@ params_species <- tibble(
   LNbase                      # basal leaf Nitrogen per unit area, kg N/m2, (Rubisco) Vmax = 0.03125*LNbase 
   lAImax                      # maximum crown LAI 
   Nfixrate0                   # Reference N fixation rate (kgN kgC-1 root)
-  NfixCost0                   # arbon cost of N fixation (kgC kgN-1)
+  NfixCost0                   # Carbon cost of N fixation (kgC kgN-1)
   phiCSA                      # ratio of sapwood area to leaf area
   mortrate_d_c                # canopy tree mortality rate, year-1 
   mortrate_d_u                # understory tree mortality rate, year-1
   maturalage                  # the age that can reproduce
-  v_seed                      # fracton of G_SF to G_F ! seed allocation
+  v_seed                      # fraction of G_SF to G_F ! seed allocation
   fNSNmax                     # multiplier for NSNmax as sum of potential bl and br
   LMA                         # leaf mass per unit area kg C/m2
   rho_wood                    # woody density, kg C m-3 wood
