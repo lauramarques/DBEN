@@ -144,11 +144,12 @@ params_soil <- tibble(
 )
 
 init_cohort <- tibble(
+  #init_n_cohort = 1,
   init_cohort_species = seq(1,10,1),   
-  init_cohort_nindivs = rep(0.008,10), 
-  init_cohort_bsw     = rep(0.2,10),  
-  init_cohort_bHW     = rep(0.0, 10), 
-  init_cohort_nsc     = rep(0.5,10)   
+  init_cohort_nindivs = 0.008, 
+  init_cohort_bsw     = 0.2,  
+  init_cohort_bHW     = 0.0, 
+  init_cohort_nsc     = 0.5   
 )
 
 init_soil <- tibble( 
