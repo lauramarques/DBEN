@@ -9,8 +9,11 @@ library(patchwork)
 # 412 ppm ####
 
 # P0 - Baseline run BCI  ####
-BiomeE_P0_BCI_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_tile.csv"))
-BiomeE_P0_BCI_aCO2_annual_cohorts <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_cohorts.csv"))
+#BiomeE_P0_BCI_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_tile.csv"))
+BiomeE_P0_BCI_aCO2_annual_tile <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_tile.csv")
+
+#BiomeE_P0_BCI_aCO2_annual_cohorts <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_cohorts.csv"))
+BiomeE_P0_BCI_aCO2_annual_cohorts <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BCI_aCO2_annual_cohorts.csv")
 
 ## Plant C (Biomass) ####
 fig1a <- BiomeE_P0_BCI_aCO2_annual_tile %>% #filter(year>510) %>%
@@ -250,6 +253,7 @@ figWBgrowth_all <- BiomeE_P0_BCI_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+figWBgrowth_all
 
 ## Basal area growth ####
 # BAgrowth
@@ -300,6 +304,7 @@ figcmort_all <- BiomeE_P0_BCI_aCO2_annual_cohorts %>%
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+figcmort_all
 
 c_balance <- BiomeE_P0_BCI_aCO2_annual_cohorts %>% 
   group_by(year) %>%

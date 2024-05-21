@@ -8,11 +8,13 @@ library(rsofun)
 library(dplyr)
 library(ggplot2)
 library(patchwork)
-library(multidplyr)
+library(tidyverse)
 
 # CO2 412 ppm ####
 
 ## Define drivers #### 
+
+# Lon -79.75°, Lat 9.25° Tropical: Barro Colorado Island, Panama (BCI): s
 
 sitename <- "BCI"
 
@@ -46,6 +48,8 @@ params_siml <- tibble(
   do_U_shaped_mortality = TRUE,
   update_annualLAImax   = TRUE,
   do_closedN_run        = TRUE,
+  do_reset_veg          = TRUE, # TRUE
+  dist_frequency        = 0, # 100, 75, 50, 25, 15, 10
   method_photosynth     = "pmodel",
   method_mortality      = "dbh"
 )
@@ -67,14 +71,11 @@ params_tile <- tibble(
   retransN     = 0.0,   
   f_initialBSW = 0.2,
   f_N_add      = 0.02,  
-  # add calibratable params
   tf_base        = 1,
   par_mort       = 0.105,    
   par_mort_under = 1
 )
 
-# Run site simulations
-# Lon -79.75°, Lat 9.25° Tropical: Barro Colorado Island, Panama (BCI): 
 # Tropical broadleaf evergreen shade intolerant (PFT5) 
 # Tropical broadleaf evergreen shade tolerant (PFT6) 
 # Tropical broadleaf deciduous (PFT7)
@@ -109,26 +110,45 @@ params_species <- tibble(
   tc_crit_on    = c(9999,10,12,0,0,rep(15,11)),                 
   gdd_crit      = c(9999,80,120,0,0,rep(0,11)), 
   betaON        = c(9999,0.2,0.9,0,0,rep(0,11)),     
-  betaOFF       = c(9999,0.1,0.9,0,0,rep(0,11)),     
-  seedlingsize  = c(9999,0.02,0.05,0.05,0.05,rep(0.05,11)),    
-  LNbase        = c(9999,0.7E-3,0.7E-3,0.8E-3,0.6E-3,rep(0.5E-3,11)), 
-  lAImax         = c(9999,2.0,3.0,3.5,3.5,rep(3.5,11)), # c(9999,2.5,3.5,3.8,4.0,rep(3.5,11)),
-  Nfixrate0     = rep(0,16),                     
-  NfixCost0     = rep(0,16),                    
-  phiCSA        = rep(0.25E-4,16),                
-  mortrate_d_c  = c(9999,0.2,0.02,0.04,0.02,rep(0.02,11)), 
-  mortrate_d_u  = rep(0.075,16),                
-  maturalage    = c(9999,0,5,5,5,rep(5,11)),       
-  v_seed        = c(9999,0.1,0.1,0.1,0.1,rep(0.1,11)),   # c(9999,0.3,0.1,0.1,0.1,rep(0.1,11)), 
-  fNSNmax       = rep(5,16),                      
-  LMA           = c(9999,0.025,0.025,0.14,0.14,rep(0.14,11)), # c(9999,0.02,0.03,0.07,0.12,rep(0.14,11)), 
-  rho_wood      = c(9999,120,350,300,300,rep(300,11)), # c(9999,80,320,350,320,rep(300,11)),
+  betaOFF       = c(9999,0.1,0.9,0,0,rep(0,11)),   
+  # Allometry parameters
+  alphaHT       = rep(36,16),                   
+  thetaHT       = rep(0.5,16),                   
+  alphaCA       = rep(150,16),                   
+  thetaCA       = rep(1.5,16),                   
   alphaBM       = rep(5200,16),                   
   thetaBM       = rep(2.5,16), 
-  # add calibratable params
+  # Reproduction parameters
+  seedlingsize  = c(9999,0.02,0.05,0.05,0.05,rep(0.05,11)),    
+  maturalage    = c(9999,0,5,5,5,rep(5,11)),       
+  v_seed        = c(9999,0.1,0.1,0.1,0.1,rep(0.1,11)), # c(9999,0.4,0.1,0.1,0.1,rep(0.1,11)),   
+  # Mortality parameters
+  mortrate_d_c  = c(9999,0.2,0.02,0.04,0.02,rep(0.02,11)), 
+  mortrate_d_u  = rep(0.075,16), 
+  # Leaf parameters
+  LMA           = c(9999,0.025,0.025,0.14,0.14,rep(0.14,11)), # c(9999,0.02,0.03,0.07,0.12,rep(0.14,11)), 
+  leafLS        = rep(1,16), 
+  LNbase        = c(9999,0.7E-3,0.7E-3,0.8E-3,0.6E-3,rep(0.5E-3,11)), 
+  CNleafsupport = rep(80,16),
+  rho_wood      = c(9999,120,350,300,300,rep(300,11)), # c(9999,80,320,350,320,rep(300,11)),
+  taperfactor   = rep(0.75,16),
+  lAImax         = c(9999,2.0,3.0,3.5,3.5,rep(3.5,11)), # c(9999,2.5,3.5,3.8,4.0,rep(3.5,11)),
+  tauNSC        = rep(3,16), 
+  fNSNmax       = rep(5,16),                      
+  phiCSA        = rep(0.25E-4,16),  
+  # C/N ratios for plant pools
+  CNleaf0      = rep(25,16),  
+  CNsw0        = rep(350,16),  
+  CNwood0      = rep(350,16),  
+  CNroot0      = rep(40,16),  
+  CNseed0      = rep(20,16),  
+  Nfixrate0     = rep(0,16),   
+  NfixCost0     = rep(0,16),                    
+  internal_gap_frac      = rep(0.1,16),
+  # calibratable params
   kphio         = rep(0.05,16),
-  phiRL         = rep(3.5,16),    # c(9999,1.5,1.2,1.5,1.5,rep(1.5,11)),           
-  LAI_light     = rep(3.5,16)                
+  phiRL         = rep(3.5,16),
+  LAI_light     = rep(3.5,16)
 ) 
 
 params_soil <- tibble(
@@ -144,11 +164,15 @@ params_soil <- tibble(
 )
 
 init_cohort <- tibble(
-  init_cohort_species = seq(1,10,1),    
-  init_cohort_nindivs = rep(0.008,10),  
-  init_cohort_bsw     = rep(0.2,10),  
-  init_cohort_bHW     = rep(0.0, 10),  
-  init_cohort_nsc     = rep(0.5,10)  
+  init_n_cohorts = 4,   # number of PFTs
+  init_cohort_species = seq(1, 10, 1),    # indicates sps (e.g. 1 - Fagus sylvatica)
+  init_cohort_nindivs = rep(0.008, 10),  # initial individual density, individual/m2 ! 1 indiv/m2 = 10.000 indiv/ha
+  init_cohort_bl      = rep(0.0, 10),   # initial biomass of leaves, kg C/individual
+  init_cohort_br      = rep(0.0, 10),  # initial biomass of fine roots, kg C/individual
+  init_cohort_bsw     = rep(0.2, 10),  # initial biomass of sapwood, kg C/individual
+  init_cohort_bHW     = rep(0.0, 10),  # initial biomass of heartwood, kg C/tree
+  init_cohort_seedC   = rep(0.0, 10),  # initial biomass of seeds, kg C/individual
+  init_cohort_nsc     = rep(0.5, 10)   # initial non-structural biomass
 )
 
 init_soil <- tibble( #list
@@ -164,7 +188,8 @@ df_soiltexture <- bind_rows(
 )
 
 ## Define forcing data ####
-biomee_forcing_BCI <- read.csv(paste0(here::here(), "/data/inputs/biomee_forcing_BCI.csv"))
+#biomee_forcing_BCI <- read.csv(paste0(here::here(), "/data/inputs/biomee_forcing_BCI.csv"))
+biomee_forcing_BCI <- read.csv("/home/laura/DBEN/data/inputs/biomee_forcing_BCI.csv")
 biomee_forcing_BCI
 df_forcing <- biomee_forcing_BCI
 
@@ -203,7 +228,7 @@ g1 <- out_sc1$data[[1]]$output_annual_tile %>%
   ggplot() +
   geom_line(aes(x = year, y = plantC)) +
   theme_classic()+labs(x = "Year", y = "plantC") 
-
+g1
 g2 <- out_sc1$data[[1]]$output_annual_cohorts %>% group_by(PFT,year) %>%
   summarise(sumBA=sum(DBH*DBH*pi/4*density/10000)) %>% mutate(PFT=as.factor(PFT)) %>%
   ggplot() +

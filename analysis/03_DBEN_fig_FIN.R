@@ -9,8 +9,10 @@ library(patchwork)
 # 412 ppm ####
 
 # P0 - Baseline run FIN  ####
-BiomeE_P0_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
-BiomeE_P0_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv"))
+#BiomeE_P0_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
+BiomeE_P0_FIN_aCO2_annual_tile <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv")
+#BiomeE_P0_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv"))
+BiomeE_P0_FIN_aCO2_annual_cohorts <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv")
 
 #RColorBrewer::brewer.pal(8, "Set1")
 
@@ -95,7 +97,6 @@ figAGcwood <- BiomeE_P0_FIN_aCO2_annual_tile %>%
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10),
                           title = element_text(size = 10)) + scale_y_continuous(lim=c(0,12.5))
 figAGcwood
-figAGcwood_412 <- figAGcwood
 
 ## Carbon mass in wood by PFT ####
 # cwood = Stem, coarse roots, branches
@@ -117,8 +118,6 @@ figcwood <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris")) +
   scale_y_continuous(lim=c(0,15))
 figcwood
-
-figcwood_412 <- figcwood
 
 ## Carbon mass in wood by size class ####
 # cwood_size
@@ -261,16 +260,6 @@ figWBgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,0.6))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  ggplot() + 
-  geom_line(aes(x=year, y=WBgrowth)) +
-  labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
-  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
-
 ## Basal area growth ####
 # BAgrowth
 # Units: m2 ha-1 yr-1
@@ -296,7 +285,7 @@ figBAgrowth
 # cmort
 # Units: kg C m-2 yr-1
 # Timestep: annual
-# Dimensions: sizeclass, time
+# Dimensions: pft, time
 # cohort output
 figcmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(PFT,year) %>%
@@ -312,6 +301,31 @@ figcmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris")) 
 figcmort
 
+# Carbon balance ####
+
+## Woody biomass growth ####
+# WBgrowth all
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# cohort output
+figWBgrowth_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
+  group_by(year) %>%
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
+  filter(year>510) %>%
+  mutate(year = year-510) %>%
+  ggplot() + 
+  geom_line(aes(x=year, y=WBgrowth)) +
+  labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+figWBgrowth_all
+
+## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
+# cmort all
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# cohort output
 figcmort_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(year) %>%
   summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
@@ -323,20 +337,12 @@ figcmort_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 figcmort_all
 
-AGcwood_var <- BiomeE_P0_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  
-cmort_var <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510)
-
-AGcwood_var %>% mutate(cmort=cmort_var$cmort) %>%
-  ggplot() + 
-  geom_line(aes(x = year, y = AGcwood*cmort),col="#377EB8") 
-
+## Carbon balance ####
+# WBgrowth-cmort
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# cohort output
 c_balance <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(year) %>%
   summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
@@ -348,22 +354,22 @@ c_balance <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   geom_line(aes(x=year, y=Carbon_balance)) +
   labs(x = "year", y = "WBgrowth - cmort") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+c_balance
 
 figWBgrowth_all+figcmort_all+c_balance
 
-c_balance_FIN_412 <- c_balance + labs(title = "FIN",subtitle="412 ppm")
-
-## DBEN Github issue 
+# Carbon budget closure ####
 BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(year) %>%
   summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
   mutate(Carbon_balance=WBgrowth-cmort) %>%
+  #filter(year>510) %>%
+  #mutate(year = year-510) %>%
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
   labs(x = "year", y = "WBgrowth - cmort") + 
-  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10))  +
-  scale_x_continuous(limits = c(0,450))
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
 figcwood_all_cumsum <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(year) %>%
@@ -377,14 +383,17 @@ figcwood_all_cumsum <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   #filter(year>30) %>% 
   ggplot() + 
   geom_line(aes(x=year, y=cwood),col="purple") +
-  geom_line(aes(x=year, y=WBgrowth),col="pink") +
-  geom_line(aes(x=year, y=cmort),col="blue") +
-  geom_line(aes(x=year, y=carbon_balance),col="red") +
   geom_line(aes(x=year, y=cumsum_carbon_balance),col="black") +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 figcwood_all_cumsum
 
+## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
+# cmort
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: sizeclass, time
+# cohort output
 figcmort_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
   filter(year>510) %>%
