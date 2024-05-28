@@ -14,7 +14,7 @@ library(tidyverse)
 
 ## Define drivers #### 
 
-# Lon -79.75°, Lat 9.25° Tropical: Barro Colorado Island, Panama (BCI): s
+# Lon -79.75°, Lat 9.25° Tropical: Barro Colorado Island, Panama (BCI)
 
 sitename <- "BCI"
 

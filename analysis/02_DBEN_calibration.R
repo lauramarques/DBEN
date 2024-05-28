@@ -15,6 +15,8 @@ library(patchwork)
 ## Regrowth curves ####
 # AGcwood (aboveground woody carbon) 
 benchmark_regrowth <- read.csv(paste0(here::here(), "/data/benchmarking/benchmark_regrowth_curves.csv"))
+benchmark_regrowth <- read.csv("/home/laura/DBEN/data/benchmarking/benchmark_regrowth_curves.csv")
+
 benchmark_regrowth_FIN <- benchmark_regrowth %>% filter(Biome=="Boreal")
 plot_regrowth_bench <- ggplot(benchmark_regrowth_FIN,aes(x=bin_num,y=AGcwood_kgCm2_med)) + 
   geom_errorbar(aes(ymin=AGcwood_kgCm2_10, ymax=AGcwood_kgCm2_90), width=.2, col="blue") + 

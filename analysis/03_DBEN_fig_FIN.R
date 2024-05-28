@@ -311,7 +311,7 @@ figcmort
 # cohort output
 figWBgrowth_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
+  summarise(WBgrowth=sum((fwood*treeG)*density/10000)) %>% 
   filter(year>510) %>%
   mutate(year = year-510) %>%
   ggplot() + 
@@ -328,6 +328,7 @@ figWBgrowth_all
 # cohort output
 figcmort_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(year) %>%
+  #summarise(cmort=sum(c_deadtrees)) %>% # c_deadtrees includes all organic pools!
   summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
   filter(year>510) %>%
   mutate(year = year-510) %>%
@@ -337,6 +338,16 @@ figcmort_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 figcmort_all
 
+BiomeE_P0_FIN_aCO2_annual_tile %>%
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
+  mutate(year = 1:450, cmort1 = c_deadtrees, cmort2 = m_turnover) %>%
+  ggplot() + 
+  geom_line(aes(x = year, y = cmort1),col="blue") +
+  geom_line(aes(x = year, y = cmort2),col="green") +
+  labs(title= "FIN 412 ppm", x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10),
+                          title = element_text(size = 10)) 
+
 ## Carbon balance ####
 # WBgrowth-cmort
 # Units: kg C m-2 yr-1
@@ -345,7 +356,7 @@ figcmort_all
 # cohort output
 c_balance <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
   group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
+  summarise(WBgrowth=sum((fwood*treeG)*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
   mutate(Carbon_balance=WBgrowth-cmort) %>%
   filter(year>510) %>%
   mutate(year = year-510) %>%
@@ -371,13 +382,29 @@ BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   labs(x = "year", y = "WBgrowth - cmort") + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
+# Estimate woody biomass mortality of the cohorts whose density is lower than the threshold of mindensity = 0.25E-4
+
+kill_low_density <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
+  mutate(nindivs = density/10000) %>%
+  filter(nindivs <= 0.25E-4)  %>%
+  mutate(cmort_low = (sapwC+woodC)*(1 - deathrate)*density/10000)  %>%
+  select(cohort, year,cID, PFT, layer,cmort_low)
+
+fecundity_growth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
+  filter(layer == 1)  %>%
+  mutate(fecundity = params_tile$f_initialBSW*seedC*density/10000) %>%
+  select(cohort, year,cID, PFT, layer, fecundity)
+  
 figcwood_all_cumsum <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
+  left_join(kill_low_density) %>%
+  left_join(fecundity_growth) %>%
+  mutate(cmort_low = ifelse(is.na(cmort_low),0,cmort_low)) %>% 
   group_by(year) %>%
   summarise(cwood=sum((sapwC+woodC)*density/10000),
-            WBgrowth=sum(fwood*treeG*density/10000),
-            cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(carbon_balance = WBgrowth-cmort) %>%
-  mutate(cumsum_carbon_balance = cumsum(WBgrowth-cmort)) %>%
+            WBgrowth=sum((fwood*treeG)*density/10000 + fecundity, na.rm = T),
+            cmort=sum((sapwC+woodC)*deathrate*density/10000 + cmort_low)) %>%
+  mutate(carbon_balance = WBgrowth-cmort,
+         cumsum_carbon_balance = cumsum(WBgrowth-cmort)) %>%
   #filter(year>510) %>%
   #mutate(year = year-510) %>% 
   #filter(year>30) %>% 

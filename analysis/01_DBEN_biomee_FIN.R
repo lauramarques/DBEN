@@ -220,6 +220,7 @@ df_drivers <-tibble(sitename = site_info$sitename,
                             .name_repair = "unique")
 
 ### Run the model ####
+#set.seed(2023)
 
 out_sc1 <- runread_biomee_f(
   df_drivers,
@@ -235,7 +236,7 @@ biomeep_output_annual_tile %>%
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
-  scale_y_continuous(lim=c(0,20)) +
+  scale_y_continuous(lim=c(0,25)) +
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
 ## GPP
@@ -326,8 +327,8 @@ biomeep_output_annual_cohorts %>%
 biomeep_output_annual_cohorts %>% 
   mutate(PFT=as.factor(PFT)) %>%
   group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
+  summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
+  #summarise(BA=sum(BA*density)) %>% 
   filter(year>510) %>%
   mutate(year = year-510) %>%
   ggplot() + 
@@ -394,18 +395,29 @@ biomeep_output_annual_cohorts %>%
 ## Carbon Mass Flux lost from live wood due to mortality or other turnover process
 biomeep_output_annual_cohorts %>% 
   group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000),
+            cmort1 = sum(n_deadtrees*(sapwC+woodC))) %>%
   filter(year>510) %>%
   mutate(year = year-510) %>%
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
+  geom_line(aes(x = year, y = cmort1),col="blue") +
+  labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+
+biomeep_output_annual_tile %>%
+  filter(year>510) %>%
+  mutate(year = year-510) %>%
+  ggplot() + 
+  geom_line(aes(x=year, y=c_deadtrees),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
 ## Carbon balance
 biomeep_output_annual_cohorts %>% 
   group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),
+            cmort=sum((sapwC+woodC)*n_deadtrees)) %>%
   mutate(Carbon_balance=WBgrowth-cmort) %>%
   filter(year>510) %>%
   mutate(year = year-510) %>%
@@ -417,12 +429,14 @@ biomeep_output_annual_cohorts %>%
 
 # Carbon budget closure
 biomeep_output_annual_cohorts %>% 
+  filter(treeG !=0) %>%
   group_by(year) %>%
   summarise(cwood=sum((sapwC+woodC)*density/10000),
             WBgrowth=sum(fwood*treeG*density/10000),
-            cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(carbon_balance = WBgrowth-cmort) %>%
-  mutate(cumsum_carbon_balance = cumsum(WBgrowth-cmort)) %>%
+            cmort=sum((sapwC+woodC)*deathrate * density/10000)) %>%
+            #cmort=sum((sapwC+woodC)*n_deadtrees)) %>%
+  mutate(carbon_balance = WBgrowth-cmort,
+         cumsum_carbon_balance = cumsum(WBgrowth-cmort)) %>%
   #filter(year>510) %>%
   #mutate(year = year-510) %>% 
   #filter(year>30) %>% 
@@ -431,6 +445,42 @@ biomeep_output_annual_cohorts %>%
   geom_line(aes(x=year, y=cumsum_carbon_balance),col="black") +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+
+# Estimate woody biomass mortality of the cohorts whose density is lower than the threshold of mindensity = 0.25E-4
+
+kill_low_density <- biomeep_output_annual_cohorts %>%
+  mutate(nindivs = density/10000) %>%
+  filter(nindivs <= 1.0E-6)  %>%
+  mutate(cmort_low = (sapwC+woodC)*(1 - deathrate)*density/10000)  %>%
+  select(cohort, year,cID, PFT, layer,cmort_low)
+
+fecundity_growth <- biomeep_output_annual_cohorts %>%
+  filter(layer == 1)  %>%
+  mutate(fecundity = params_tile$f_initialBSW*seedC*density/10000) %>%
+  select(cohort, year,cID, PFT, layer, fecundity)
+
+figcwood_all_cumsum <- biomeep_output_annual_cohorts %>% 
+  left_join(kill_low_density) %>%
+  left_join(fecundity_growth) %>%
+  mutate(cmort_low = ifelse(is.na(cmort_low),0,cmort_low)) %>% 
+  group_by(year) %>%
+  summarise(cwood=sum((sapwC+woodC)*density/10000),
+            WBgrowth=sum((fwood*treeG)*density/10000+fecundity, na.rm = T),
+            cmort=sum(m_turnover + cmort_low),
+            cmort=sum((sapwC+woodC)*deathrate*density/10000 + cmort_low)
+            ) %>%
+  mutate(carbon_balance = WBgrowth-cmort,
+         cumsum_carbon_balance = cumsum(WBgrowth-cmort)) %>%
+  #filter(year>510) %>%
+  #mutate(year = year-510) %>% 
+  #filter(year>30) %>% 
+  ggplot() + 
+  geom_line(aes(x=year, y=cwood),col="purple") +
+  geom_line(aes(x=year, y=cumsum_carbon_balance),col="black") +
+  labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) #+
+  #scale_x_continuous(limits = c(0,500))
+figcwood_all_cumsum
 
 ## Stem number Flux lost from vegetation due to mortality or other turnover process
 biomeep_output_annual_cohorts %>% 
@@ -472,7 +522,7 @@ biomeep_output_annual_cohorts %>%
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) +
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT7_Broadleaf_deciduous","PFT6_Broadleaf_evergreen_shade_tol","PFT5_Broadleaf_evergreen_shade_int"))
 
-## Carbon Mass Flux out of Atmosphere due to Net Biospheric Production on Land
+## Carbon Mass Flux out of Atmosphere due to Net Biosphere Production on Land
 biomeep_output_annual_tile %>% 
   slice(510+1:nrow(biomeep_output_annual_tile)) %>% 
   mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
