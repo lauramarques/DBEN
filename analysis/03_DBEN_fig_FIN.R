@@ -17,9 +17,9 @@ BiomeE_P0_FIN_aCO2_annual_cohorts <- read.csv("/home/laura/DBEN/data/outputs_mod
 #RColorBrewer::brewer.pal(8, "Set1")
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_P0_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_P0_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -28,9 +28,9 @@ fig1a <- BiomeE_P0_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_P0_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_P0_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -39,9 +39,9 @@ fig1b <- BiomeE_P0_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_P0_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_P0_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -50,9 +50,9 @@ fig1c <- BiomeE_P0_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_P0_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_P0_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -60,19 +60,19 @@ fig1d <- BiomeE_P0_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
   scale_y_continuous(lim=c(72,93))
 fig1d
 
-# POOLS ####
-## Carbon mass in vegetation by PFT ####
+# Pools ----
+## 1. Carbon mass in vegetation by PFT ####
 # cveg = Stem, coarse roots, fine roots, branches, leaves
 # Units: kg C m-2
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -81,57 +81,73 @@ figcveg <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,17))
 figcveg
 
-## Aboveground woody biomass ####
+## 2. Aboveground woody biomass ####
 # AGcwood
 # Units: kg C m-2
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_P0_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_P0_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
-  geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
+  geom_line(aes(x = year, y = AGcwood), col="#377EB8") +
   labs(title= "FIN 412 ppm", x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10),
                           title = element_text(size = 10)) + scale_y_continuous(lim=c(0,12.5))
 figAGcwood
 
-## Carbon mass in wood by PFT ####
+figAGcwood <- BiomeE_P0_FIN_aCO2_annual_tile |>
+  filter(PFT != 1) |>
+  group_by(year) |>
+  summarise(AGcwood=sum((sapwC+woodC)*0.75*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  ggplot() + 
+  geom_line(aes(x = year, y = AGcwood), col="#377EB8") +
+  labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10),
+                          title = element_text(size = 10)) + scale_y_continuous(lim=c(0,12.5))
+
+figAGcwood
+
+## 3. Carbon mass in wood by PFT ####
 # cwood = Stem, coarse roots, branches
 # Units: kg C m-2
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_P0_FIN_aCO2_annual_cohorts |>
+  filter(PFT != 1) |>
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(title= "FIN 412 ppm", x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10),
                           title = element_text(size = 10),legend.position="bottom") +
-  scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris")) +
+  scale_colour_manual(labels = c("PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"),
+                      values = c("#7CAE00", "#00BFC4", "#C77CFF"))
   scale_y_continuous(lim=c(0,15))
 figcwood
 
-## Carbon mass in wood by size class ####
+## 4. Carbon mass in wood by size class ####
 # cwood_size
 # Units: kg C m-2
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -139,18 +155,19 @@ figcwood_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,15))
 figcwood_size
 
-## Stem number by size class ####
+## 5. Stem number by size class ####
 # nstem_size
 # Units: count ha-1
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  filter(PFT != 1) |>
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -158,18 +175,18 @@ fignstem_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,3500))
 fignstem_size
 
-## Leaf area index ####
+## 6. Leaf area index ####
 # lai
 # Units: m2 m-2
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -178,18 +195,18 @@ figlai <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,7))
 figlai
 
-## Crown area ####
+## 7. Crown area ####
 # CA
 # Units: m2 m-2
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -198,19 +215,19 @@ figCA <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,3))
 figCA
 
-## Basal area ####
+## 8. Basal area ####
 # BA
 # Units: m2 ha-1
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -219,18 +236,18 @@ figBA <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,30))
 figBA
 
-## 95th percentile of tree height ####
+## 9. 95th percentile of tree height ####
 # height
 # Units: m
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -239,19 +256,19 @@ figheight <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,33))
 figheight
 
-# FLUXES ####
-## Woody biomass growth ####
+# Fluxes ----
+## 10. Woody biomass growth ####
 # WBgrowth
 # Units: kg C m-2 yr-1
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -260,19 +277,19 @@ figWBgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,0.6))
 figWBgrowth
 
-## Basal area growth ####
+## 11. Basal area growth ####
 # BAgrowth
 # Units: m2 ha-1 yr-1
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -281,19 +298,19 @@ figBAgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,8))
 figBAgrowth
 
-## Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
+## 12. Carbon Mass Flux lost from live wood due to mortality or other turnover process ####
 # cmort
 # Units: kg C m-2 yr-1
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% # c_deadtrees includes all organic pools!
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> # c_deadtrees includes all organic pools!
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -309,11 +326,11 @@ figcmort
 # Timestep: annual
 # Dimensions: time
 # cohort output
-figWBgrowth_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum((fwood*treeG)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum((fwood*treeG)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -326,21 +343,21 @@ figWBgrowth_all
 # Timestep: annual
 # Dimensions: time
 # cohort output
-figcmort_all <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% # c_deadtrees includes all organic pools!
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> # c_deadtrees includes all organic pools!
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 figcmort_all
 
-BiomeE_P0_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, cmort1 = c_deadtrees, cmort2 = m_turnover) %>%
+BiomeE_P0_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, cmort1 = c_deadtrees, cmort2 = m_turnover) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort1),col="blue") +
   geom_line(aes(x = year, y = cmort2),col="green") +
@@ -354,12 +371,12 @@ BiomeE_P0_FIN_aCO2_annual_tile %>%
 # Timestep: annual
 # Dimensions: time
 # cohort output
-c_balance <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum((fwood*treeG)*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum((fwood*treeG)*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -370,12 +387,12 @@ c_balance
 figWBgrowth_all+figcmort_all+c_balance
 
 # Carbon budget closure ####
-BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  #filter(year>510) %>%
-  #mutate(year = year-510) %>%
+BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  #filter(year>510) |>
+  #mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -384,30 +401,30 @@ BiomeE_P0_FIN_aCO2_annual_cohorts %>%
 
 # Estimate woody biomass mortality of the cohorts whose density is lower than the threshold of mindensity = 0.25E-4
 
-kill_low_density <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
-  mutate(nindivs = density/10000) %>%
-  filter(nindivs <= 0.25E-4)  %>%
-  mutate(cmort_low = (sapwC+woodC)*(1 - deathrate)*density/10000)  %>%
+kill_low_density <- BiomeE_P0_FIN_aCO2_annual_cohorts |>
+  mutate(nindivs = density/10000) |>
+  filter(nindivs <= 0.25E-4)  |>
+  mutate(cmort_low = (sapwC+woodC)*(1 - deathrate)*density/10000)  |>
   select(cohort, year,cID, PFT, layer,cmort_low)
 
-fecundity_growth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
-  filter(layer == 1)  %>%
-  mutate(fecundity = params_tile$f_initialBSW*seedC*density/10000) %>%
+fecundity_growth <- BiomeE_P0_FIN_aCO2_annual_cohorts |>
+  filter(layer == 1)  |>
+  mutate(fecundity = params_tile$f_initialBSW*seedC*density/10000) |>
   select(cohort, year,cID, PFT, layer, fecundity)
   
-figcwood_all_cumsum <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  left_join(kill_low_density) %>%
-  left_join(fecundity_growth) %>%
-  mutate(cmort_low = ifelse(is.na(cmort_low),0,cmort_low)) %>% 
-  group_by(year) %>%
+figcwood_all_cumsum <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  left_join(kill_low_density) |>
+  left_join(fecundity_growth) |>
+  mutate(cmort_low = ifelse(is.na(cmort_low),0,cmort_low)) |> 
+  group_by(year) |>
   summarise(cwood=sum((sapwC+woodC)*density/10000),
             WBgrowth=sum((fwood*treeG)*density/10000 + fecundity, na.rm = T),
-            cmort=sum((sapwC+woodC)*deathrate*density/10000 + cmort_low)) %>%
+            cmort=sum((sapwC+woodC)*deathrate*density/10000 + cmort_low)) |>
   mutate(carbon_balance = WBgrowth-cmort,
-         cumsum_carbon_balance = cumsum(WBgrowth-cmort)) %>%
-  #filter(year>510) %>%
-  #mutate(year = year-510) %>% 
-  #filter(year>30) %>% 
+         cumsum_carbon_balance = cumsum(WBgrowth-cmort)) |>
+  #filter(year>510) |>
+  #mutate(year = year-510) |> 
+  #filter(year>30) |> 
   ggplot() + 
   geom_line(aes(x=year, y=cwood),col="purple") +
   geom_line(aes(x=year, y=cumsum_carbon_balance),col="black") +
@@ -421,14 +438,14 @@ figcwood_all_cumsum
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -442,13 +459,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -457,12 +474,12 @@ figstemmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,1.3))
 figstemmort
 
-figstemmort_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -476,12 +493,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -496,12 +513,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -519,10 +536,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_P0_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_P0_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -551,9 +568,9 @@ BiomeE_P0_FIN_eCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/out
 #RColorBrewer::brewer.pal(8, "Set1")
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_P0_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_P0_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -562,9 +579,9 @@ fig1a <- BiomeE_P0_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_P0_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_P0_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -573,9 +590,9 @@ fig1b <- BiomeE_P0_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_P0_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_P0_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -584,9 +601,9 @@ fig1c <- BiomeE_P0_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_P0_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_P0_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -601,12 +618,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -621,10 +638,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_P0_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_P0_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(title="FIN 562 ppm", x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -641,12 +658,12 @@ figAGcwood_562 <- figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(title="FIN 562 ppm", x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -667,13 +684,13 @@ figAGcwood_412 + figAGcwood_562 + figcwood_412 +
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -687,12 +704,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -706,12 +723,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -726,12 +743,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -746,13 +763,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -767,12 +784,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -788,12 +805,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -802,11 +819,11 @@ figWBgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,0.6))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -818,13 +835,13 @@ figWBgrowth_all <- BiomeE_P0_FIN_eCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -839,13 +856,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -854,22 +871,22 @@ figcmort <- BiomeE_P0_FIN_eCO2_annual_cohorts %>%
   scale_y_continuous(lim=c(0,0.7))
 figcmort
 
-figcmort_all <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -880,14 +897,14 @@ figWBgrowth_all+figcmort_all+c_balance
 
 c_balance_FIN_562 <- c_balance + labs(title = "FIN",subtitle="562 ppm")
 
-figcmort_size <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -901,13 +918,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -916,13 +933,13 @@ figstemmort <- BiomeE_P0_FIN_eCO2_annual_cohorts %>%
 scale_y_continuous(lim=c(0,1.3))
 figstemmort
 
-figstemmort_size <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -936,12 +953,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -956,12 +973,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -978,10 +995,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_P0_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_P0_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1010,9 +1027,9 @@ BiomeE_PS1_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS1_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS1_FIN_aCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS1_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS1_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -1020,9 +1037,9 @@ fig1a <- BiomeE_PS1_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS1_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS1_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1030,9 +1047,9 @@ fig1b <- BiomeE_PS1_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS1_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS1_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1040,9 +1057,9 @@ fig1c <- BiomeE_PS1_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS1_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS1_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1056,12 +1073,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -1075,10 +1092,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS1_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS1_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -1091,12 +1108,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -1110,13 +1127,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -1129,12 +1146,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -1147,12 +1164,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -1166,12 +1183,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -1185,13 +1202,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -1205,12 +1222,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -1225,12 +1242,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1238,11 +1255,11 @@ figWBgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1254,13 +1271,13 @@ figWBgrowth_all <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -1274,13 +1291,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1288,22 +1305,22 @@ figcmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -1312,14 +1329,14 @@ c_balance <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1332,13 +1349,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -1346,12 +1363,12 @@ figstemmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -1364,12 +1381,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1383,12 +1400,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1404,10 +1421,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS1_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS1_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1429,23 +1446,23 @@ BiomeE_PS2_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS2_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS2_FIN_aCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS2_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS2_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 fig1a
 
-g1 <- BiomeE_PS2_FIN_aCO2_annual_tile %>%
+g1 <- BiomeE_PS2_FIN_aCO2_annual_tile |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-g2 <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% group_by(PFT,year) %>%
-  summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>% mutate(PFT=as.factor(PFT)) %>%
+g2 <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> group_by(PFT,year) |>
+  summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |> mutate(PFT=as.factor(PFT)) |>
   ggplot() +
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -1455,9 +1472,9 @@ g2 <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% group_by(PFT,year) %>%
 g1/g2
 
 ## GPP ####
-fig1b <- BiomeE_PS2_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS2_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1465,9 +1482,9 @@ fig1b <- BiomeE_PS2_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS2_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS2_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1475,9 +1492,9 @@ fig1c <- BiomeE_PS2_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS2_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS2_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1491,12 +1508,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -1510,10 +1527,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS2_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS2_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -1526,12 +1543,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -1545,13 +1562,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -1564,12 +1581,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -1582,12 +1599,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -1601,12 +1618,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -1620,13 +1637,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -1640,12 +1657,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -1660,12 +1677,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1673,11 +1690,11 @@ figWBgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1689,13 +1706,13 @@ figWBgrowth_all <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -1709,13 +1726,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1723,22 +1740,22 @@ figcmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -1747,14 +1764,14 @@ c_balance <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1767,13 +1784,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -1781,12 +1798,12 @@ figstemmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -1799,12 +1816,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1818,12 +1835,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1839,10 +1856,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS2_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS2_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1864,9 +1881,9 @@ BiomeE_PS3_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS3_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS3_FIN_aCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS3_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS3_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -1874,9 +1891,9 @@ fig1a <- BiomeE_PS3_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS3_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS3_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1884,9 +1901,9 @@ fig1b <- BiomeE_PS3_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS3_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS3_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1894,9 +1911,9 @@ fig1c <- BiomeE_PS3_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS3_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS3_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -1910,12 +1927,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -1929,10 +1946,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS3_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS3_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -1945,12 +1962,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -1964,13 +1981,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -1983,12 +2000,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -2001,12 +2018,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -2020,12 +2037,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -2039,13 +2056,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -2059,12 +2076,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -2079,12 +2096,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2092,11 +2109,11 @@ figWBgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2108,13 +2125,13 @@ figWBgrowth_all <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -2128,13 +2145,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2142,22 +2159,22 @@ figcmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -2166,14 +2183,14 @@ c_balance <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2186,13 +2203,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -2200,12 +2217,12 @@ figstemmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -2218,12 +2235,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2237,12 +2254,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2258,10 +2275,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS3_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS3_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2283,9 +2300,9 @@ BiomeE_PS4_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS4_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS4_FIN_aCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS4_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS4_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -2293,9 +2310,9 @@ fig1a <- BiomeE_PS4_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS4_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS4_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2303,9 +2320,9 @@ fig1b <- BiomeE_PS4_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS4_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS4_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2313,9 +2330,9 @@ fig1c <- BiomeE_PS4_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS4_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS4_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2329,12 +2346,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -2348,10 +2365,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS4_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS4_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -2364,12 +2381,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -2383,13 +2400,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -2402,12 +2419,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -2420,12 +2437,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -2439,12 +2456,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -2458,13 +2475,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -2478,12 +2495,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -2498,12 +2515,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2511,11 +2528,11 @@ figWBgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2527,13 +2544,13 @@ figWBgrowth_all <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -2547,13 +2564,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2561,22 +2578,22 @@ figcmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -2585,14 +2602,14 @@ c_balance <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2605,13 +2622,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -2619,12 +2636,12 @@ figstemmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -2637,12 +2654,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2656,12 +2673,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2677,10 +2694,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS4_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS4_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2702,9 +2719,9 @@ BiomeE_PS5_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS5_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS5_FIN_aCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS5_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS5_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -2712,9 +2729,9 @@ fig1a <- BiomeE_PS5_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS5_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS5_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2722,9 +2739,9 @@ fig1b <- BiomeE_PS5_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS5_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS5_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2732,9 +2749,9 @@ fig1c <- BiomeE_PS5_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS5_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS5_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2748,12 +2765,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -2767,10 +2784,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS5_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS5_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -2783,12 +2800,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -2802,13 +2819,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -2821,12 +2838,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -2839,12 +2856,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -2858,12 +2875,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -2877,13 +2894,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -2897,12 +2914,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -2917,12 +2934,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2930,11 +2947,11 @@ figWBgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2946,13 +2963,13 @@ figWBgrowth_all <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -2966,13 +2983,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -2980,22 +2997,22 @@ figcmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -3004,14 +3021,14 @@ c_balance <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3024,13 +3041,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -3038,12 +3055,12 @@ figstemmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -3056,12 +3073,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3075,12 +3092,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3096,10 +3113,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS5_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS5_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3121,9 +3138,9 @@ BiomeE_PS6_FIN_aCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS6_FIN_aCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_PS6_FIN_aCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS6_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS6_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -3131,9 +3148,9 @@ fig1a <- BiomeE_PS6_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS6_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS6_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3141,9 +3158,9 @@ fig1b <- BiomeE_PS6_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS6_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS6_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3151,9 +3168,9 @@ fig1c <- BiomeE_PS6_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS6_FIN_aCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS6_FIN_aCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3167,12 +3184,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -3186,10 +3203,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS6_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS6_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -3202,12 +3219,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -3221,13 +3238,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -3240,12 +3257,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -3258,12 +3275,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -3277,12 +3294,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -3296,13 +3313,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -3316,12 +3333,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -3336,12 +3353,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3349,11 +3366,11 @@ figWBgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3365,13 +3382,13 @@ figWBgrowth_all <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -3385,13 +3402,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3399,22 +3416,22 @@ figcmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -3423,14 +3440,14 @@ c_balance <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3443,13 +3460,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -3457,12 +3474,12 @@ figstemmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -3475,12 +3492,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3494,12 +3511,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3515,10 +3532,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS6_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS6_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3542,9 +3559,9 @@ BiomeE_PS1_FIN_eCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS1_FIN_eCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS1_FIN_eCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS1_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS1_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -3552,9 +3569,9 @@ fig1a <- BiomeE_PS1_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS1_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS1_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3562,9 +3579,9 @@ fig1b <- BiomeE_PS1_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS1_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS1_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3572,9 +3589,9 @@ fig1c <- BiomeE_PS1_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS1_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS1_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3588,12 +3605,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -3607,10 +3624,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS1_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS1_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -3623,12 +3640,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -3642,13 +3659,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -3661,12 +3678,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -3679,12 +3696,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -3698,12 +3715,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -3717,13 +3734,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -3737,12 +3754,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -3757,12 +3774,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3770,11 +3787,11 @@ figWBgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3786,13 +3803,13 @@ figWBgrowth_all <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -3806,13 +3823,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3820,22 +3837,22 @@ figcmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -3844,14 +3861,14 @@ c_balance <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3864,13 +3881,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -3878,12 +3895,12 @@ figstemmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -3896,12 +3913,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3915,12 +3932,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3936,10 +3953,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS1_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS1_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3961,9 +3978,9 @@ BiomeE_PS2_FIN_eCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS2_FIN_eCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS2_FIN_eCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS2_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS2_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -3971,9 +3988,9 @@ fig1a <- BiomeE_PS2_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS2_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS2_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3981,9 +3998,9 @@ fig1b <- BiomeE_PS2_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS2_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS2_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -3991,9 +4008,9 @@ fig1c <- BiomeE_PS2_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS2_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS2_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4007,12 +4024,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -4026,10 +4043,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS2_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS2_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -4042,12 +4059,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -4061,13 +4078,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -4080,12 +4097,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -4098,12 +4115,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -4117,12 +4134,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -4136,13 +4153,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -4156,12 +4173,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -4176,12 +4193,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4189,11 +4206,11 @@ figWBgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4205,13 +4222,13 @@ figWBgrowth_all <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -4225,13 +4242,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4239,22 +4256,22 @@ figcmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -4263,14 +4280,14 @@ c_balance <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4283,13 +4300,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -4297,12 +4314,12 @@ figstemmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -4315,12 +4332,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4334,12 +4351,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4355,10 +4372,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS2_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS2_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4380,9 +4397,9 @@ BiomeE_PS3_FIN_eCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS3_FIN_eCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS3_FIN_eCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS3_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS3_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -4390,9 +4407,9 @@ fig1a <- BiomeE_PS3_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS3_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS3_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4400,9 +4417,9 @@ fig1b <- BiomeE_PS3_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS3_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS3_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4410,9 +4427,9 @@ fig1c <- BiomeE_PS3_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS3_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS3_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4426,12 +4443,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -4445,10 +4462,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS3_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS3_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -4461,12 +4478,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -4480,13 +4497,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -4499,12 +4516,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -4517,12 +4534,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -4536,12 +4553,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -4555,13 +4572,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -4575,12 +4592,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -4595,12 +4612,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4608,11 +4625,11 @@ figWBgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4624,13 +4641,13 @@ figWBgrowth_all <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -4644,13 +4661,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4658,22 +4675,22 @@ figcmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -4682,14 +4699,14 @@ c_balance <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4702,13 +4719,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -4716,12 +4733,12 @@ figstemmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -4734,12 +4751,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4753,12 +4770,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4774,10 +4791,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS3_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS3_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4799,9 +4816,9 @@ BiomeE_PS4_FIN_eCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS4_FIN_eCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS4_FIN_eCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS4_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS4_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -4809,9 +4826,9 @@ fig1a <- BiomeE_PS4_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS4_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS4_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4819,9 +4836,9 @@ fig1b <- BiomeE_PS4_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS4_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS4_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4829,9 +4846,9 @@ fig1c <- BiomeE_PS4_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS4_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS4_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -4845,12 +4862,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -4864,10 +4881,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS4_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS4_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -4880,12 +4897,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -4899,13 +4916,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -4918,12 +4935,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -4936,12 +4953,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -4955,12 +4972,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -4974,13 +4991,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -4994,12 +5011,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -5014,12 +5031,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5027,11 +5044,11 @@ figWBgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5043,13 +5060,13 @@ figWBgrowth_all <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -5063,13 +5080,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5077,22 +5094,22 @@ figcmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -5101,14 +5118,14 @@ c_balance <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5121,13 +5138,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -5135,12 +5152,12 @@ figstemmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -5153,12 +5170,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5172,12 +5189,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5193,10 +5210,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS4_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS4_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5218,9 +5235,9 @@ BiomeE_PS5_FIN_eCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS5_FIN_eCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS5_FIN_eCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS5_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS5_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -5228,9 +5245,9 @@ fig1a <- BiomeE_PS5_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS5_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS5_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5238,9 +5255,9 @@ fig1b <- BiomeE_PS5_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS5_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS5_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5248,9 +5265,9 @@ fig1c <- BiomeE_PS5_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS5_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS5_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5264,12 +5281,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -5283,10 +5300,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS5_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS5_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -5299,12 +5316,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -5318,13 +5335,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -5337,12 +5354,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -5355,12 +5372,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -5374,12 +5391,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -5393,13 +5410,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -5413,12 +5430,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -5433,12 +5450,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5446,11 +5463,11 @@ figWBgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5462,13 +5479,13 @@ figWBgrowth_all <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -5482,13 +5499,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5496,22 +5513,22 @@ figcmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -5520,14 +5537,14 @@ c_balance <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5540,13 +5557,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -5554,12 +5571,12 @@ figstemmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -5572,12 +5589,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5591,12 +5608,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5612,10 +5629,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS5_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS5_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5637,9 +5654,9 @@ BiomeE_PS6_FIN_eCO2_annual_tile    <- read.csv(paste0(here::here(), "/data/outpu
 BiomeE_PS6_FIN_eCO2_annual_cohorts    <- read.csv(paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS6_FIN_eCO2_annual_cohorts.csv"))
 
 ## Plant C (Biomass) ####
-fig1a <- BiomeE_PS6_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1a <- BiomeE_PS6_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -5647,9 +5664,9 @@ fig1a <- BiomeE_PS6_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1a
 
 ## GPP ####
-fig1b <- BiomeE_PS6_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1b <- BiomeE_PS6_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5657,9 +5674,9 @@ fig1b <- BiomeE_PS6_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1b
 
 ## Rauto ####
-fig1c <- BiomeE_PS6_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1c <- BiomeE_PS6_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5667,9 +5684,9 @@ fig1c <- BiomeE_PS6_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
 fig1c
 
 ## Soil C ####
-fig1d <- BiomeE_PS6_FIN_eCO2_annual_tile %>% #filter(year>510) %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450) %>%
+fig1d <- BiomeE_PS6_FIN_eCO2_annual_tile |> #filter(year>510) |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5683,12 +5700,12 @@ fig1d
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-figcveg <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcveg <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cveg,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in vegetation (kg C ", m^-2, ") "))) + 
@@ -5702,10 +5719,10 @@ figcveg
 # Timestep: annual
 # Dimensions: time
 # tile output
-figAGcwood <- BiomeE_PS6_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGcwood)  %>%
+figAGcwood <- BiomeE_PS6_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
+  select(year, AGcwood)  |>
   ggplot() + 
   geom_line(aes(x = year, y = AGcwood),col="#377EB8") +
   labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
@@ -5718,12 +5735,12 @@ figAGcwood
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figcwood <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcwood <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -5737,13 +5754,13 @@ figcwood
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcwood_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcwood_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -5756,12 +5773,12 @@ figcwood_size
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-fignstem_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+fignstem_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = nstem_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
@@ -5774,12 +5791,12 @@ fignstem_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figlai <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figlai <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = lai,col=PFT)) +
   labs(x = "year", y = expression(paste("Leaf area (", m^-2, " ", m^-2, ") "))) + 
@@ -5793,12 +5810,12 @@ figlai
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figCA <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figCA <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
@@ -5812,13 +5829,13 @@ figCA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBA <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBA <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
@@ -5832,12 +5849,12 @@ figBA
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figheight <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figheight <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = height,col=PFT)) +
   labs(x = "year", y = "95th Height (m)") + 
@@ -5852,12 +5869,12 @@ figheight
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figWBgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5865,11 +5882,11 @@ figWBgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figWBgrowth
 
-figWBgrowth_all <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figWBgrowth_all <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=WBgrowth)) +
   labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5881,13 +5898,13 @@ figWBgrowth_all <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figBAgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figBAgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x=year, y=BAgrowth,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area growth (", m^2, " ",ha^-1, " ", yr^-1, ") "))) + 
@@ -5901,13 +5918,13 @@ figBAgrowth
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-figcmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figcmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5915,22 +5932,22 @@ figcmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>%
   scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figcmort
 
-figcmort_all <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figcmort_all <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
-c_balance <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  mutate(Carbon_balance=WBgrowth-cmort) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+c_balance <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000),cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  mutate(Carbon_balance=WBgrowth-cmort) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_hline(yintercept = 0, col="red", alpha=0.5) +
   geom_line(aes(x=year, y=Carbon_balance)) +
@@ -5939,14 +5956,14 @@ c_balance <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>%
 
 figWBgrowth_all+figcmort_all+c_balance
 
-figcmort_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figcmort_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -5959,13 +5976,13 @@ figcmort_size
 # Timestep: annual
 # Dimensions: sizeclass, time, pft
 # cohort output
-figstemmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.factor(PFT)) %>%
-  mutate(year = year-510) %>%
+figstemmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.factor(PFT)) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=PFT)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -5973,12 +5990,12 @@ figstemmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>%
     scale_colour_discrete(labels = c("PFT8_Grasses","PFT3_Betula_pendula","PFT2_Picea_abies","PFT1_Pinus_sylvestris"))
 figstemmort
 
-figstemmort_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") %>%
+figstemmort_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = stemmort,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Stem number flux lost (count ", m^-2, " ", yr^-1, ") "))) + 
@@ -5991,12 +6008,12 @@ figstemmort_size
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-figgpp <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+figgpp <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = gpp,col=PFT)) +
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -6010,12 +6027,12 @@ figgpp
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-fignpp <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.factor(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
+fignpp <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.factor(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
   ggplot() + 
   geom_line(aes(x = year, y = npp,col=PFT)) +
   labs(x = "year", y = expression(paste("NPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -6031,10 +6048,10 @@ fignpp
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-fignbp <- BiomeE_PS6_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
-  select(year, nbp) %>%
+fignbp <- BiomeE_PS6_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
+  select(year, nbp) |>
   ggplot() + 
   geom_line(aes(x = year, y = nbp),col="#377EB8") +
   labs(x = "year", y = expression(paste("NBP (kg C ", m^-2, " ", yr^-1, ") "))) + 

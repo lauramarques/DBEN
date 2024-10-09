@@ -23,9 +23,9 @@ PFT_FIN <- tibble(PFT_species,PFT,PFT_reorder)
 PFT_FIN
 
 # Calculate deathrate and wood lifespan
-BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT) %>%
-  summarise(deathrate=mean(deathrate)) %>%
+BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT) |>
+  summarise(deathrate=mean(deathrate)) |>
   mutate(wood_lifespan=1/deathrate)
 
 # Pools ####
@@ -35,17 +35,17 @@ BiomeE_P0_FIN_aCO2_annual_cohorts %>%
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                  "BiomeEP_cveg_P0_FIN_412ppm", ".nc", sep=""))
@@ -74,11 +74,22 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_P0_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_P0_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+
+# remove grasses from cohort output
+AGcwood <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  filter(PFT != 1) |>
+  group_by(year) |>
+  summarise(AGcwood=sum((sapwC+woodC)*0.75*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  ungroup()
+
+AGcwood_wid <- AGcwood |> select(-year)
+
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_AGcwood_P0_FIN_412ppm", ".nc", sep=""))
@@ -104,17 +115,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_cwood_P0_FIN_412ppm", ".nc", sep=""))
@@ -142,15 +153,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_cwood_size_P0_FIN_412ppm", ".nc", sep=""))
@@ -178,15 +189,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_nstem_size_P0_FIN_412ppm", ".nc", sep=""))
@@ -214,17 +225,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_lai_P0_FIN_412ppm", ".nc", sep=""))
@@ -252,17 +263,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_CA_P0_FIN_412ppm", ".nc", sep=""))
@@ -290,18 +301,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_BA_P0_FIN_412ppm", ".nc", sep=""))
@@ -329,17 +340,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_height_P0_FIN_412ppm", ".nc", sep=""))
@@ -368,17 +379,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_WBgrowth_P0_FIN_412ppm", ".nc", sep=""))
@@ -406,18 +417,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_BAgrowth_P0_FIN_412ppm", ".nc", sep=""))
@@ -445,18 +456,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>%
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_cmort_pft_P0_FIN_412ppm", ".nc", sep=""))
@@ -478,17 +489,17 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>% 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
+cmort <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |> 
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
   ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_cmort_size_P0_FIN_412ppm", ".nc", sep=""))
@@ -516,18 +527,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_stemmort_pft_P0_FIN_412ppm", ".nc", sep=""))
@@ -549,15 +560,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout)
 
-stemmort <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_stemmort_size_P0_FIN_412ppm", ".nc", sep=""))
@@ -585,17 +596,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_gpp_P0_FIN_412ppm", ".nc", sep=""))
@@ -623,17 +634,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_P0_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_P0_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_npp_P0_FIN_412ppm", ".nc", sep=""))
@@ -663,11 +674,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_P0_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_P0_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/", 
                         "BiomeEP_nbp_P0_FIN_412ppm", ".nc", sep=""))
@@ -704,17 +715,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cveg_PS1_FIN_412ppm", ".nc", sep=""))
@@ -743,11 +754,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS1_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS1_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_AGcwood_PS1_FIN_412ppm", ".nc", sep=""))
@@ -773,17 +784,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_PS1_FIN_412ppm", ".nc", sep=""))
@@ -811,15 +822,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_size_PS1_FIN_412ppm", ".nc", sep=""))
@@ -847,15 +858,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nstem_size_PS1_FIN_412ppm", ".nc", sep=""))
@@ -883,17 +894,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_lai_PS1_FIN_412ppm", ".nc", sep=""))
@@ -921,17 +932,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_CA_PS1_FIN_412ppm", ".nc", sep=""))
@@ -959,18 +970,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BA_PS1_FIN_412ppm", ".nc", sep=""))
@@ -998,17 +1009,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_height_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1037,17 +1048,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_WBgrowth_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1075,18 +1086,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BAgrowth_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1114,18 +1125,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%    
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>    
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_pft_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1147,16 +1158,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%    
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>    
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_size_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1184,18 +1195,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1217,15 +1228,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout)
 
-stemmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_size_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1253,17 +1264,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_gpp_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1291,17 +1302,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS1_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS1_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_npp_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1331,11 +1342,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS1_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS1_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nbp_PS1_FIN_412ppm", ".nc", sep=""))
@@ -1372,17 +1383,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cveg_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1411,11 +1422,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS2_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS2_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_AGcwood_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1441,17 +1452,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1479,15 +1490,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_size_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1515,15 +1526,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nstem_size_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1551,17 +1562,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_lai_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1589,17 +1600,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_CA_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1627,18 +1638,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BA_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1666,17 +1677,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_height_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1705,17 +1716,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_WBgrowth_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1743,18 +1754,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BAgrowth_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1782,18 +1793,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%    
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>    
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_pft_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1815,16 +1826,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%    
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>    
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_size_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1852,18 +1863,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1885,15 +1896,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout)
 
-stemmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_size_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1921,17 +1932,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_gpp_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1959,17 +1970,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS2_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS2_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_npp_PS2_FIN_412ppm", ".nc", sep=""))
@@ -1999,11 +2010,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS2_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS2_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nbp_PS2_FIN_412ppm", ".nc", sep=""))
@@ -2040,17 +2051,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cveg_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2079,11 +2090,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS3_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS3_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_AGcwood_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2109,17 +2120,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2147,15 +2158,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_size_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2183,15 +2194,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nstem_size_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2219,17 +2230,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_lai_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2257,17 +2268,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_CA_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2295,18 +2306,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BA_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2334,17 +2345,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_height_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2373,17 +2384,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_WBgrowth_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2411,18 +2422,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BAgrowth_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2450,18 +2461,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%    
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>    
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_pft_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2483,16 +2494,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%    
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>    
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_size_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2520,18 +2531,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2553,15 +2564,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout)
 
-stemmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_size_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2589,17 +2600,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_gpp_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2627,17 +2638,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS3_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS3_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_npp_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2667,11 +2678,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS3_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS3_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nbp_PS3_FIN_412ppm", ".nc", sep=""))
@@ -2708,17 +2719,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cveg_PS4_FIN_412ppm", ".nc", sep=""))
@@ -2747,11 +2758,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS4_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS4_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_AGcwood_PS4_FIN_412ppm", ".nc", sep=""))
@@ -2777,17 +2788,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_PS4_FIN_412ppm", ".nc", sep=""))
@@ -2815,15 +2826,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_size_PS4_FIN_412ppm", ".nc", sep=""))
@@ -2851,15 +2862,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nstem_size_PS4_FIN_412ppm", ".nc", sep=""))
@@ -2887,17 +2898,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_lai_PS4_FIN_412ppm", ".nc", sep=""))
@@ -2925,17 +2936,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_CA_PS4_FIN_412ppm", ".nc", sep=""))
@@ -2963,18 +2974,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BA_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3002,17 +3013,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_height_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3041,17 +3052,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_WBgrowth_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3079,18 +3090,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BAgrowth_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3118,18 +3129,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%   
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>   
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_pft_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3151,16 +3162,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%    
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>    
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_size_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3188,18 +3199,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3221,15 +3232,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout)
 
-stemmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_size_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3257,17 +3268,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_gpp_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3295,17 +3306,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS4_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS4_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_npp_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3335,11 +3346,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS4_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS4_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nbp_PS4_FIN_412ppm", ".nc", sep=""))
@@ -3376,17 +3387,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cveg_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3415,11 +3426,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS5_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS5_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_AGcwood_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3445,17 +3456,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3483,15 +3494,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_size_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3519,15 +3530,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nstem_size_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3555,17 +3566,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_lai_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3593,17 +3604,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_CA_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3631,18 +3642,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BA_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3670,17 +3681,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_height_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3709,17 +3720,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_WBgrowth_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3747,18 +3758,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BAgrowth_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3786,18 +3797,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%   
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>   
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_pft_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3819,16 +3830,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%   
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>   
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_size_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3856,18 +3867,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3889,15 +3900,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout)
 
-stemmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_size_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3925,17 +3936,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_gpp_PS5_FIN_412ppm", ".nc", sep=""))
@@ -3963,17 +3974,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS5_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS5_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_npp_PS5_FIN_412ppm", ".nc", sep=""))
@@ -4003,11 +4014,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS5_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS5_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nbp_PS5_FIN_412ppm", ".nc", sep=""))
@@ -4044,17 +4055,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cveg_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4083,11 +4094,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS6_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS6_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_AGcwood_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4113,17 +4124,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4151,15 +4162,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cwood_size_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4187,15 +4198,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nstem_size_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4223,17 +4234,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_lai_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4261,17 +4272,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_CA_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4299,18 +4310,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BA_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4338,17 +4349,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_height_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4377,17 +4388,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_WBgrowth_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4415,18 +4426,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_BAgrowth_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4454,18 +4465,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_pft_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4487,16 +4498,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_cmort_size_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4524,18 +4535,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4557,15 +4568,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout)
 
-stemmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_stemmort_size_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4593,17 +4604,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_gpp_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4631,17 +4642,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS6_FIN_aCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS6_FIN_aCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_npp_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4671,11 +4682,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS6_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS6_FIN_aCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_aCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/412ppm/FIN/",
                  "BiomeEP_nbp_PS6_FIN_412ppm", ".nc", sep=""))
@@ -4716,17 +4727,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cveg_P0_FIN_562ppm", ".nc", sep=""))
@@ -4755,11 +4766,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_P0_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_P0_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_AGcwood_P0_FIN_562ppm", ".nc", sep=""))
@@ -4785,17 +4796,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_P0_FIN_562ppm", ".nc", sep=""))
@@ -4823,15 +4834,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_size_P0_FIN_562ppm", ".nc", sep=""))
@@ -4859,15 +4870,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nstem_size_P0_FIN_562ppm", ".nc", sep=""))
@@ -4895,17 +4906,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_lai_P0_FIN_562ppm", ".nc", sep=""))
@@ -4933,17 +4944,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_CA_P0_FIN_562ppm", ".nc", sep=""))
@@ -4971,18 +4982,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BA_P0_FIN_562ppm", ".nc", sep=""))
@@ -5010,17 +5021,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_height_P0_FIN_562ppm", ".nc", sep=""))
@@ -5049,17 +5060,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_WBgrowth_P0_FIN_562ppm", ".nc", sep=""))
@@ -5087,18 +5098,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BAgrowth_P0_FIN_562ppm", ".nc", sep=""))
@@ -5126,18 +5137,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-  cmort <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%   
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+  cmort <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>   
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_pft_P0_FIN_562ppm", ".nc", sep=""))
@@ -5159,16 +5170,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_size_P0_FIN_562ppm", ".nc", sep=""))
@@ -5196,18 +5207,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_pft_P0_FIN_562ppm", ".nc", sep=""))
@@ -5229,15 +5240,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout)
 
-stemmort <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[60,70)`=0,`[70,80)`=0,`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[60,70)`=0,`[70,80)`=0,`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_size_P0_FIN_562ppm", ".nc", sep=""))
@@ -5265,17 +5276,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_gpp_P0_FIN_562ppm", ".nc", sep=""))
@@ -5303,17 +5314,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_P0_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_P0_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_npp_P0_FIN_562ppm", ".nc", sep=""))
@@ -5343,11 +5354,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_P0_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_P0_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_P0_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nbp_P0_FIN_562ppm", ".nc", sep=""))
@@ -5384,17 +5395,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cveg_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5423,11 +5434,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS1_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS1_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_AGcwood_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5453,17 +5464,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5491,15 +5502,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_size_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5527,15 +5538,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nstem_size_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5563,17 +5574,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_lai_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5601,17 +5612,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_CA_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5639,18 +5650,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BA_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5678,17 +5689,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_height_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5717,17 +5728,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_WBgrowth_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5755,18 +5766,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BAgrowth_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5794,18 +5805,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%   
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>   
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_pft_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5827,16 +5838,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_size_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5864,18 +5875,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5897,15 +5908,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout) 
 
-stemmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_size_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5933,17 +5944,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_gpp_PS1_FIN_562ppm", ".nc", sep=""))
@@ -5971,17 +5982,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS1_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS1_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_npp_PS1_FIN_562ppm", ".nc", sep=""))
@@ -6011,11 +6022,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS1_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS1_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS1_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nbp_PS1_FIN_562ppm", ".nc", sep=""))
@@ -6052,17 +6063,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cveg_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6091,11 +6102,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS2_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS2_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_AGcwood_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6121,17 +6132,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6159,15 +6170,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_size_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6195,15 +6206,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nstem_size_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6231,17 +6242,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_lai_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6269,17 +6280,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_CA_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6307,18 +6318,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BA_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6346,17 +6357,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_height_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6385,17 +6396,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_WBgrowth_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6423,18 +6434,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BAgrowth_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6462,18 +6473,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_pft_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6495,16 +6506,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_size_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6532,18 +6543,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6565,15 +6576,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout) 
 
-stemmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_size_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6601,17 +6612,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_gpp_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6639,17 +6650,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS2_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS2_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_npp_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6679,11 +6690,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS2_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS2_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS2_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nbp_PS2_FIN_562ppm", ".nc", sep=""))
@@ -6720,17 +6731,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cveg_PS3_FIN_562ppm", ".nc", sep=""))
@@ -6759,11 +6770,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS3_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS3_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_AGcwood_PS3_FIN_562ppm", ".nc", sep=""))
@@ -6789,17 +6800,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_PS3_FIN_562ppm", ".nc", sep=""))
@@ -6827,15 +6838,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_size_PS3_FIN_562ppm", ".nc", sep=""))
@@ -6863,15 +6874,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nstem_size_PS3_FIN_562ppm", ".nc", sep=""))
@@ -6899,17 +6910,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_lai_PS3_FIN_562ppm", ".nc", sep=""))
@@ -6937,17 +6948,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_CA_PS3_FIN_562ppm", ".nc", sep=""))
@@ -6975,18 +6986,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BA_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7014,17 +7025,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_height_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7053,17 +7064,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_WBgrowth_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7091,18 +7102,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup() #%>% mutate(BAgrowth=ifelse(BAgrowth=="Inf",NA,BAgrowth))
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup() #|> mutate(BAgrowth=ifelse(BAgrowth=="Inf",NA,BAgrowth))
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BAgrowth_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7130,18 +7141,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%   
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>   
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_pft_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7163,16 +7174,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_size_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7200,18 +7211,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7233,15 +7244,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout) 
 
-stemmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_size_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7269,17 +7280,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_gpp_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7307,17 +7318,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS3_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS3_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_npp_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7347,11 +7358,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS3_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS3_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS3_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nbp_PS3_FIN_562ppm", ".nc", sep=""))
@@ -7388,17 +7399,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cveg_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7427,11 +7438,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS4_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS4_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_AGcwood_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7457,17 +7468,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7495,15 +7506,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_size_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7531,15 +7542,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nstem_size_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7567,17 +7578,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_lai_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7605,17 +7616,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_CA_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7643,18 +7654,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BA_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7682,17 +7693,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_height_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7721,17 +7732,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_WBgrowth_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7759,18 +7770,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup() #%>% mutate(BAgrowth=ifelse(BAgrowth=="Inf",NA,BAgrowth))
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup() #|> mutate(BAgrowth=ifelse(BAgrowth=="Inf",NA,BAgrowth))
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BAgrowth_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7798,18 +7809,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%   
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>   
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_pft_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7831,16 +7842,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_size_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7868,18 +7879,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7901,15 +7912,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout) 
 
-stemmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_size_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7937,17 +7948,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_gpp_PS4_FIN_562ppm", ".nc", sep=""))
@@ -7975,17 +7986,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS4_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS4_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_npp_PS4_FIN_562ppm", ".nc", sep=""))
@@ -8015,11 +8026,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS4_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS4_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS4_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nbp_PS4_FIN_562ppm", ".nc", sep=""))
@@ -8056,17 +8067,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cveg_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8095,11 +8106,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS5_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS5_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_AGcwood_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8125,17 +8136,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8163,15 +8174,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_size_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8199,15 +8210,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nstem_size_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8235,17 +8246,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_lai_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8273,17 +8284,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_CA_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8311,18 +8322,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BA_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8350,17 +8361,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_height_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8389,17 +8400,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_WBgrowth_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8427,18 +8438,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup() #%>% mutate(BAgrowth=ifelse(BAgrowth=="Inf",NA,BAgrowth))
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup() #|> mutate(BAgrowth=ifelse(BAgrowth=="Inf",NA,BAgrowth))
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BAgrowth_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8466,18 +8477,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_pft_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8499,16 +8510,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_size_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8536,18 +8547,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8569,15 +8580,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout) 
 
-stemmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_size_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8605,17 +8616,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_gpp_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8643,17 +8654,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS5_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS5_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_npp_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8683,11 +8694,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS5_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS5_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS5_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nbp_PS5_FIN_562ppm", ".nc", sep=""))
@@ -8724,17 +8735,17 @@ PFT_FIN
 # Timestep: annual
 # Dimensions: pft, time
 # cohorts output
-cveg <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cveg_wid <- cveg %>% select(c(year,cveg,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cveg <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cveg=sum((nsc+seedC+leafC+rootC+sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cveg_wid <- cveg |> select(c(year,cveg,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cveg,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cveg_PS6_FIN_562ppm", ".nc", sep=""))
@@ -8763,11 +8774,11 @@ nc_close(cveg_ncout)
 # Timestep: annual
 # Dimensions: time
 # tile output
-AGcwood <- BiomeE_PS6_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) %>%
+AGcwood <- BiomeE_PS6_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, AGcwood = (SapwoodC+WoodC)*0.75) |>
   select(year, AGcwood) 
-AGcwood_wid <- AGcwood %>% select(-year)
+AGcwood_wid <- AGcwood |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_AGcwood_PS6_FIN_562ppm", ".nc", sep=""))
@@ -8793,17 +8804,17 @@ nc_close(AGcwood_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-cwood <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(cwood=sum((sapwC+woodC)*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cwood_wid <- cwood %>% select(c(year,cwood,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cwood <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cwood_wid <- cwood |> select(c(year,cwood,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cwood,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_PS6_FIN_562ppm", ".nc", sep=""))
@@ -8831,15 +8842,15 @@ nc_close(cwood_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cwood_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) %>% ungroup()
-cwood_size_wid <- cwood_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cwood_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
+cwood_size_wid <- cwood_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cwood_size_PS6_FIN_562ppm", ".nc", sep=""))
@@ -8867,15 +8878,15 @@ nc_close(cwood_size_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-nstem_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(nstem_size=sum(density)) %>% ungroup()
-nstem_size_wid <- nstem_size %>% 
-  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+nstem_size <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(nstem_size=sum(density)) |> ungroup()
+nstem_size_wid <- nstem_size |> 
+  pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nstem_size_PS6_FIN_562ppm", ".nc", sep=""))
@@ -8903,17 +8914,17 @@ nc_close(nstem_size_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-lai <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  summarise(lai=sum(Aleaf*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-lai_wid <- lai %>% select(c(year,lai,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+lai <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  summarise(lai=sum(Aleaf*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+lai_wid <- lai |> select(c(year,lai,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = lai,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_lai_PS6_FIN_562ppm", ".nc", sep=""))
@@ -8941,17 +8952,17 @@ nc_close(lai_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-CA <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(CA=sum(Acrown*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-CA_wid <- CA %>% select(c(year,CA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+CA <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(CA=sum(Acrown*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+CA_wid <- CA |> select(c(year,CA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = CA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_CA_PS6_FIN_562ppm", ".nc", sep=""))
@@ -8979,18 +8990,18 @@ nc_close(CA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BA <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) %>%
-  summarise(BA=sum(BA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-BA_wid <- BA %>% select(c(year,BA,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BA <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  #summarise(BA=sum(DBH*DBH*pi/4*density/10000)) |>
+  summarise(BA=sum(BA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+BA_wid <- BA |> select(c(year,BA,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BA,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BA_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9018,17 +9029,17 @@ nc_close(BA_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-height <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(height=quantile(height, probs = 0.95)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-height_wid <- height %>% select(c(year,height,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+height <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(height=quantile(height, probs = 0.95)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+height_wid <- height |> select(c(year,height,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = height,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_height_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9057,17 +9068,17 @@ nc_close(height_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-WBgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-WBgrowth_wid <- WBgrowth %>% select(c(year,WBgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+WBgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_WBgrowth_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9095,18 +9106,18 @@ nc_close(WBgrowth_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-BAgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) %>%
-  #summarise(BAgrowth=sum(dBA*density)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup() #%>% mutate(BAgrowth=ifelse(BAgrowth=="Inf",NA,BAgrowth))
-BAgrowth_wid <- BAgrowth %>% select(c(year,BAgrowth,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+BAgrowth <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(BAgrowth=sum(((DBH+dDBH)**2*pi/4-DBH**2*pi/4)*density/10000)) |>
+  #summarise(BAgrowth=sum(dBA*density)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup() #|> mutate(BAgrowth=ifelse(BAgrowth=="Inf",NA,BAgrowth))
+BAgrowth_wid <- BAgrowth |> select(c(year,BAgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = BAgrowth,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_BAgrowth_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9134,18 +9145,18 @@ nc_close(BAgrowth_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time
 # cohort output
-cmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%  
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-cmort_wid <- cmort %>% select(c(year,cmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+cmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>  
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_pft_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9167,16 +9178,16 @@ cmort_ncout
 # close the file, writing data to disk
 nc_close(cmort_ncout)
 
-cmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  #summarise(cmort=sum(c_deadtrees)) %>%   
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) %>% ungroup()
-cmort_wid <- cmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+cmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  #summarise(cmort=sum(c_deadtrees)) |>   
+  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |> ungroup()
+cmort_wid <- cmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = cmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_cmort_size_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9204,18 +9215,18 @@ nc_close(cmort_ncout)
 # Timestep: annual
 # Dimensions: sizeclass, time, (pft)
 # cohort output
-stemmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  group_by(PFT,year) %>%
-  #summarise(stemmort=sum(n_deadtrees)) %>% 
-  summarise(stemmort=sum(deathrate*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(PFT=as.double(PFT)) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-stemmort_wid <- stemmort %>% select(c(year,stemmort,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+stemmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  group_by(PFT,year) |>
+  #summarise(stemmort=sum(n_deadtrees)) |> 
+  summarise(stemmort=sum(deathrate*density/10000)) |> 
+  filter(year>510) |>
+  mutate(PFT=as.double(PFT)) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+stemmort_wid <- stemmort |> select(c(year,stemmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_pft_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9237,15 +9248,15 @@ stemmort_ncout
 # close the file, writing data to disk
 nc_close(stemmort_ncout) 
 
-stemmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) %>%
-  filter(year>510) %>%
-  mutate(year = year-510) %>%
-  group_by(dbh_bins,year) %>%
-  summarise(stemmort=sum(deathrate*density/10000)) %>% ungroup()
-stemmort_wid <- stemmort %>% 
-  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) %>% arrange(year) %>%
-  select(-year) %>% mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
+stemmort <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  group_by(dbh_bins,year) |>
+  summarise(stemmort=sum(deathrate*density/10000)) |> ungroup()
+stemmort_wid <- stemmort |> 
+  pivot_wider(names_from = dbh_bins, values_from = stemmort,values_fill = 0) |> arrange(year) |>
+  select(-year) |> mutate(`[80,90)`=0,`[90,100)`=0,`[100,150)`=0,`[150,200)`=0,`[200,250)`=0)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_stemmort_size_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9273,17 +9284,17 @@ nc_close(stemmort_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-gpp <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(gpp=sum(GPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-gpp_wid <- gpp %>% select(c(year,gpp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+gpp <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(gpp=sum(GPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+gpp_wid <- gpp |> select(c(year,gpp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = gpp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_gpp_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9311,17 +9322,17 @@ nc_close(gpp_ncout)
 # Timestep: annual
 # Dimensions: pft, time
 # cohort output
-npp <- BiomeE_PS6_FIN_eCO2_annual_cohorts %>% 
-  mutate(PFT=as.double(PFT)) %>%
-  group_by(PFT,year) %>%
-  summarise(npp=sum(NPP*density/10000)) %>% 
-  filter(year>510) %>%
-  mutate(year = year-510) %>% left_join(PFT_FIN) %>% ungroup()
-npp_wid <- npp %>% select(c(year,npp,PFT_reorder)) %>% rename(PFT=PFT_reorder) %>%
-  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) %>% arrange(year) %>%
-  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) %>% 
-  relocate(`1`,.after =year) %>% relocate(`2`,.after =`1`) %>% relocate(`3`,.after =`2`) %>%
-  relocate(`8`,.after =`7`) %>% select(-year)
+npp <- BiomeE_PS6_FIN_eCO2_annual_cohorts |> 
+  mutate(PFT=as.double(PFT)) |>
+  group_by(PFT,year) |>
+  summarise(npp=sum(NPP*density/10000)) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |> left_join(PFT_FIN) |> ungroup()
+npp_wid <- npp |> select(c(year,npp,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
+  pivot_wider(names_from = PFT, values_from = npp,values_fill = 0) |> arrange(year) |>
+  mutate(`4`=0,`5`=0,`6`=0,`7`=0,) |> 
+  relocate(`1`,.after =year) |> relocate(`2`,.after =`1`) |> relocate(`3`,.after =`2`) |>
+  relocate(`8`,.after =`7`) |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_npp_PS6_FIN_562ppm", ".nc", sep=""))
@@ -9351,11 +9362,11 @@ nc_close(npp_ncout)
 # Timestep: annual
 # Dimensions: time
 # cohort tile
-nbp <- BiomeE_PS6_FIN_eCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) %>% 
-  mutate(year = 1:450, nbp = GPP-Rauto-Rh) %>%
+nbp <- BiomeE_PS6_FIN_eCO2_annual_tile |>
+  slice(510+1:nrow(BiomeE_PS6_FIN_eCO2_annual_tile)) |> 
+  mutate(year = 1:450, nbp = GPP-Rauto-Rh) |>
   select(year, nbp) 
-nbp_wid <- nbp %>% select(-year)
+nbp_wid <- nbp |> select(-year)
 # create the netCDF filename 
 ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/562ppm/FIN/",
                  "BiomeEP_nbp_PS6_FIN_562ppm", ".nc", sep=""))
