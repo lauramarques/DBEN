@@ -1,0 +1,81 @@
+&soil_data_nml
+soiltype = 3,
+GMD = 0.7, 0.4, 0.3, 0.1, 0.1, 0.07, 0.007,
+chb = 2.2, 2.64, 3.31, 4.38, 5.12, 6.58, 14.95,
+psi_sat_ref = -600., -790., -910., -1580., -1680., -1880., -5980., ! Pa
+k_sat_ref   = 130.8, 75.1,  53.2,  12.1,   11.1,   12.7,   1.69,   ! mol/(s MPa m)
+vwc_sat     = 0.380, 0.445, 0.448, 0.412,  0.414,  0.446,  0.424, ! vol/vol
+/
+
+&vegn_parameters_nml
+f_iniBSW = 0.1,
+K0SOM    = 0.8, 0.25, 2.5, 2.0, 0.1,   ! turnover rates of SOM pools
+K_nitrogen = 2.4  ! 0.0, ! 1.2 ! 2.4 ! rate of a year, 2.5
+rho_SON    = 0.02 ! organic nitrogen release rate
+etaN       = 0.0, ! 0.025 ! Nitrogen loss rate with runoff
+f_M2SOM    = 0.8, ! fraction of microbes to litter
+diff_S0    = 0.1,  ! critical difference for merging of two cohorts
+kx0_WD     = 5.0,  ! kx0 at reference WD
+p50_WD     = -1.565,  ! stem psi50 at reference WD
+ths0_WD    = 3.0,    ! exponential of the PLC function for (psi/psi50)
+WTC0_WD    = 1.5E+3, ! 1200.0,  ! Water transport capacity at ref. wood density
+CR0_LF     = 0.5,
+CR0_WD     = 0.3,   ! 0.35 ! Compression ratio of wood tissues at reference WD
+m0_WTC     = 5.0,
+m0_kx      = 5.0,
+! species     0        1        2        3        4        5
+lifeform    = 0,       0,       1,       1,       1,       1,       ! 0: grass; 1 Woody
+phenotype   = 0,       0,       1,       0,       0,       1,       ! 0: Deciduous; 1 Evergreen
+pt          = 1,       0,       0,       0,       0,       0,       ! 0: C3; 1: C4
+tc_crit_on  = 12.,     10.,     0.0,     12.,     12.,     0.,      ! degree C, converted to K in spdata
+tc_crit_off = 15.,     12.,     0.0,     15.,     15.,     0.0,     ! degree C, converted to K in spdata
+gdd_crit    = 300.,    80.,     0.0,     120.,    120.,     0.0,
+s0_plant    = 0.02,    0.005,   0.06,    0.02,    0.02,    0.05,    ! initial size of seedlings
+LMA         = 0.02,    0.02,    0.14,    0.025,   0.025,   0.08,    ! Leaf mass per unit area, 0.035
+phiRL       = 1.0,     1.0,     1.5,     1.0,     1.1,     1.2,     ! Root/Leaf area ratio
+rho_wood    = 120.,     80.,    350.,    300.,    320.,    350.,
+v_seed      = 0.4,     0.4,     0.1,     0.1,     0.1,     0.1,     ! Seed allocation
+LNbase      = 0.6E-3,  1.0E-3,  0.4E-3,  0.8E-3,  0.7E-3,  0.5E-3,  ! kgN m-2 leaf, Vmax = 0.03125*LNbase
+m_cond      = 7.0,     7.0,     9.0,     9.0,     9.0,     9.0,
+laimax      = 2.0,     2.0,     3.5,     3.2,     3.3,     3.5,     ! maximum crown LAI
+Nfixrate0   = 0.0,     0.0,     0.0,     0.0,     0.0,     0.0,     ! 0.03 kgN kgRootC-1 yr-1
+NfixCost0   = 0.0,     0.0,     0.0,     0.0,     0.0,     0.0,     ! N fixation carbon cost: 12 gC/gN
+phiCSA      = 0.25E-4, 0.25E-4, 0.25E-4, 0.25E-4, 0.25E-4, 0.25E-4, ! ratio of Asap/Acrown
+r0mort_c    = 0.05,    0.05,    0.01,    0.03,    0.02,    0.02,   ! canopy tree mortality rate, year-1
+A_sd        = 4.0,     4.0,     9.0,     9.0,     9.0,     9.0,     ! Seedling mortality parameter
+AgeRepro    = 0,       0,       5,       5,       5,       5,
+envi_fire_prb = 0.20, ! 0.0, 0.01, 0.02, 0.04, 0.08, 0.2, 0.4
+/
+
+&initial_state_nml
+! Model run
+filepath_in = './input/',  ! Climate forcing data
+filepath_out= './output/', ! Output files
+siteLAT  = 52.75, ! LAT_BCI = 9.25, LAT_BIA = 52.75, LAT_FIN = 62.25
+runID    = 'BiomeE_PS_BIA_aCO2_20', !  for output file name
+climfile = 'DBEN_BIA_forcing.csv' ! 'BCI_forcing.csv' ! 'ORNL_forcing.txt'
+CO2_c    = 412.0, ! 562.0, ! the year of 2020, ppm; eCO2 + 150 = 562
+
+!!   plant and soil
+init_n_cohorts      = 4, ! total 5
+init_cohort_species = 1,    2,    3,    4,    5,
+init_cohort_nindivs =  4.0,  .5,  .5,  .5,  .5,
+init_cohort_bsw     = 0.01, 0.2,  0.2,  0.2,  0.2,
+init_cohort_bHW     = 0.0,  0.0,  0.0,  0.0,  0.0,
+init_cohort_nsc     = 0.04, 0.5,  0.5,  0.5,  0.5,
+init_fast_soil_C    = 0.5    ! .1 ! 0.8  ! kg C m-2  ! C/N = 15
+init_slow_soil_C    = 40.0   ! .1 ! 40.0 ! kg C m-2  ! C/N = 40
+init_Nmineral       = 50.0E-3, ! 402.5E-3, ! kg N m-2
+N_input             = 11.E-3, ! 0.0E-3 ! 2.4E-3 ! kg N m-2 yr-1, N deposit: 0.8 g N m-2 yr-1
+
+model_run_years = 1050, !600, ! 1600,
+yr_ResetVeg     = 300,
+do_migration = .True.  ! .False.
+do_fire      = .True.  ! .False.
+outputhourly        = .False. ! .True.  !
+outputdaily         = .False.  ! .False. !
+do_U_shaped_mortality = .True. ! .True. !
+do_WD_mort_function   = .False. ! .True. !
+do_VariedWTC0 = .True. ! .False. !
+do_VariedKx   = .True. ! .False. !
+/

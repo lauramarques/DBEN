@@ -31,6 +31,7 @@ fillvalue <- ncatt_get(example_netcdf,"BA","_FillValue")
 var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/FIN/BiomeEP_WBgrowth_P0_FIN_412ppm.nc"))
 var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/BIA/BiomeEP_WBgrowth_P0_BIA_412ppm.nc"))
 var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/BCI/BiomeEP_WBgrowth_P0_BCI_412ppm.nc"))
+var1_netcdf <- nc_open("/home/laura/rsofun/data/outputs_mod/nc_files/412ppm/FIN/BiomeEP_cveg_P0_FIN_aCO2.nc")
 var1_netcdf
 attributes(var1_netcdf$var)
 attributes(var1_netcdf$dim)
@@ -38,7 +39,7 @@ attributes(var1_netcdf$dim)
 ncvar_get(var1_netcdf, "time")
 ncvar_get(var1_netcdf, "pft")
 # get variables
-dvar <- ncvar_get(var1_netcdf,"WBgrowth")
+dvar <- ncvar_get(var1_netcdf,"cveg")
 str(dvar)
 dvar <- as.data.frame(dvar)
 dvar_WBgrowth <- dvar %>% mutate(total = rowSums(.[1:8])) %>%

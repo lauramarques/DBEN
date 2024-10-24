@@ -27,6 +27,9 @@ plot_regrowth_bench <- ggplot(benchmark_regrowth_FIN,aes(x=bin_num,y=AGcwood_kgC
 plot_regrowth_bench
 
 BiomeE_P0_FIN_aCO2_annual_tile <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
+BiomeE_P0_FIN_aCO2_annual_tile <- read.csv("/home/laura/DBEN/data/outputs_mod/v1.0/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv")
+
+
 plot_regrowth_out <- BiomeE_P0_FIN_aCO2_annual_tile %>%
   slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
   mutate(year = 1:450, AGW = (SapwoodC+WoodC)*0.75) %>%
@@ -80,9 +83,9 @@ plot_biomass_out + plot_biomass_bench
 
 # Biomass plots together
 biomass_out <- BiomeE_P0_FIN_aCO2_annual_tile %>%
-  slice(510+1:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
-  mutate(year = 1:450, AGW = (SapwoodC+WoodC)*0.75) %>%
-  select(year, AGW) %>% filter(year>=420&year<=450)
+  slice(510+31:nrow(BiomeE_P0_FIN_aCO2_annual_tile)) %>% 
+  mutate(year = 1:420, AGW = (SapwoodC+WoodC)*0.75) %>%
+  select(year, AGW) #%>% filter(year>=420&year<=450)
 
 fig_biomass <- ggplot() + geom_point(data=benchmark_biomass_FIN,aes(x=time,y=AGB_kgCm2),col="blue") + 
   geom_errorbar(data=benchmark_biomass_FIN,aes(x=time,y=AGB_kgCm2,
