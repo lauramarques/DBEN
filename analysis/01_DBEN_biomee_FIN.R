@@ -231,8 +231,8 @@ out <- runread_biomee_f(
 biomee_annual_tile <- out$data[[1]]$output_annual_tile
 biomee_annual_cohorts <- out$data[[1]]$output_annual_cohorts
 
-#biomee_annual_tile <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
-#biomee_annual_cohorts <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv"))
+biomee_annual_tile <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
+biomee_annual_cohorts <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv"))
 
 # Figures ----
 source("/home/laura/DBEN/analysis/03_DBEN_figures.R")
@@ -355,6 +355,17 @@ cveg_fig(biomee_annual_cohorts)
 
 ## 2. Aboveground woody biomass ----
 AGcwood_fig(biomee_annual_cohorts)
+
+biomee_annual_tile |>
+  mutate(AGcwood=(SapwoodC + WoodC)*0.75) |> 
+  filter(year>510) |>
+  mutate(year = year-510) |>
+  ggplot() + 
+  geom_line(aes(x = year, y = AGcwood), col="#377E89") +
+  labs(x = "year", y = expression(paste("Aboveground woody biomass (kg C ", m^-2, ") "))) + 
+  scale_x_continuous(limits = c(0,300)) +
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10),
+                          title = element_text(size = 10)) 
 
 ## 3. Carbon mass in wood by PFT ----
 cwood_fig(biomee_annual_cohorts)
