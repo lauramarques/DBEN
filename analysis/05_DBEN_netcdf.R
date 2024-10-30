@@ -31,7 +31,8 @@ fillvalue <- ncatt_get(example_netcdf,"BA","_FillValue")
 var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/FIN/BiomeEP_WBgrowth_P0_FIN_412ppm.nc"))
 var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/BIA/BiomeEP_WBgrowth_P0_BIA_412ppm.nc"))
 var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/BCI/BiomeEP_WBgrowth_P0_BCI_412ppm.nc"))
-var1_netcdf <- nc_open("/home/laura/rsofun/data/outputs_mod/nc_files/412ppm/FIN/BiomeEP_cveg_P0_FIN_aCO2.nc")
+var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/BCI/BiomeEP_WBgrowth_P0_BCI_412ppm.nc"))
+
 var1_netcdf
 attributes(var1_netcdf$var)
 attributes(var1_netcdf$dim)
@@ -122,7 +123,7 @@ dvar_cmort %>%
 ## 412 ppm ####
 
 # read cwood per size
-var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/FIN/BiomeEP_cwood_size_P0_FIN_412ppm.nc"))
+var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/aCO2/FIN/BiomeEP_nstem_size_P0_FIN_aCO2.nc"))
 var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/BIA/BiomeEP_cwood_size_P0_BIA_412ppm.nc"))
 var1_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/BCI/BiomeEP_cwood_size_P0_BCI_412ppm.nc"))
 var1_netcdf
@@ -132,7 +133,7 @@ attributes(var1_netcdf$dim)
 ncvar_get(var1_netcdf, "time")
 ncvar_get(var1_netcdf, "sizeclass")
 # get variables
-dvar <- ncvar_get(var1_netcdf,"cwood_size")
+dvar <- ncvar_get(var1_netcdf,"nstem_size")
 str(dvar)
 dvar <- as.data.frame(dvar)
 dvar_cwood_size <- dvar %>% mutate(total = rowSums(.[1:16])) %>%
@@ -141,6 +142,10 @@ str(dvar_cwood_size)
 eq_cwood_size_ambient = dvar_cwood_size %>% filter(year>=390) %>%
   summarise(mean=mean(total))
 eq_cwood_size_ambient
+
+dvar_cwood_size %>%
+  ggplot() + 
+  geom_line(aes(x=year, y=total)) 
 
 # read cmort
 var2_netcdf <- nc_open(paste0(here::here(), "/data/outputs_mod/nc_files/412ppm/FIN/BiomeEP_cmort_pft_P0_FIN_412ppm.nc"))

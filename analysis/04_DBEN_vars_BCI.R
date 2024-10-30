@@ -43,6 +43,28 @@ PFT_order
 
 source("/home/laura/DBEN/analysis/04_DBEN_variables.R")
 
+# Carbon budget closure ----
+## A. cwood_tile ----
+# Units: kg C m-2
+# Timestep: annual
+# Dimensions: time
+# tile output
+cwood_tile_df(BiomeE_P0_BCI_aCO2_annual_tile)
+
+## B. WDgrowth_tile ----
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# tile output
+WDgrowth_tile_df(BiomeE_P0_BCI_aCO2_annual_tile)
+
+## C. cmort_tile ----
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# tile output
+cmort_tile_df(BiomeE_P0_BCI_aCO2_annual_tile)
+
 # Pools ----
 # 1. Carbon mass in vegetation by PFT ----
 # cveg = Stem, coarse roots, BCIe roots, branches, leaves

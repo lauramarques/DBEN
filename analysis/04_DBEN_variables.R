@@ -10,6 +10,119 @@ library(patchwork)
 library(ncdf4)
 library(ncdf4.helpers)
 
+# C budget closure ----
+
+## A. cwood_tile ----
+# Units: kg C m-2
+# Timestep: annual
+# Dimensions: time
+# tile output
+
+cwood_tile_df <- function(data){
+  cwood_tile <- data |>
+    slice(595:nrow(data)) |> 
+    mutate(year = 1:936, 
+           cwood = SapwoodC+WoodC) |>
+    select(year, cwood) 
+  cwood_tile_wid <- cwood_tile |> select(-year)
+  # create the netCDF filename 
+  name <- substr(deparse(substitute(data)), start = 8, stop = 18)
+  ppm <- substr(deparse(substitute(data)), start = 15, stop = 18)
+  site <- substr(deparse(substitute(data)), start = 11, stop = 13)
+  ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/",ppm,"/",site, 
+                          "/BiomeEP_CBudget_cwood_",name, ".nc", sep=""))
+  # define dimensions
+  time <- as.array(seq(1,935,1))
+  time_dim <- ncdim_def("time","years",as.double(time)) 
+  # define variables
+  cwood_tile_var <- ncvar_def("cwood","kg C m-2",list(time_dim),-999,
+                       "Carbon mass in wood",prec="single")
+  # create netCDF file and put arrays
+  cwood_tile_ncout <- nc_create(ncfname,list(cwood_tile_var),force_v4=TRUE)
+  # put variables
+  cwood_tile_array <- simplify2array(cwood_tile_wid)
+  ncvar_put(cwood_tile_ncout,cwood_tile_var,cwood_tile_array)
+  # Get a summary of the created file
+  cwood_tile_ncout
+  # close the file, writing data to disk
+  nc_close(cwood_tile_ncout)
+  return(cwood_tile_var)
+}
+
+# B. WDgrowth_tile ----
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# tile output
+
+WDgrowth_tile_df <- function(data){
+  WDgrowth_tile <- data |>
+    slice(595:nrow(data)) |> 
+    mutate(year = 1:936, 
+           WDgrowth = WDgrow+WDrepr) |>
+    select(year, WDgrowth) 
+  WDgrowth_tile_wid <- WDgrowth_tile |> select(-year)
+  # create the netCDF filename 
+  name <- substr(deparse(substitute(data)), start = 8, stop = 18)
+  ppm <- substr(deparse(substitute(data)), start = 15, stop = 18)
+  site <- substr(deparse(substitute(data)), start = 11, stop = 13)
+  ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/",ppm,"/",site, 
+                          "/BiomeEP_CBudget_WDgrowth_",name, ".nc", sep=""))
+  # define dimensions
+  time <- as.array(seq(1,935,1))
+  time_dim <- ncdim_def("time","years",as.double(time)) 
+  # define variables
+  WDgrowth_tile_var <- ncvar_def("WDgrowth","kg C m-2 yr-1",list(time_dim),-999,
+                              "Woody biomass growth",prec="single")
+  # create netCDF file and put arrays
+  WDgrowth_tile_ncout <- nc_create(ncfname,list(WDgrowth_tile_var),force_v4=TRUE)
+  # put variables
+  WDgrowth_tile_array <- simplify2array(WDgrowth_tile_wid)
+  ncvar_put(WDgrowth_tile_ncout,WDgrowth_tile_var,WDgrowth_tile_array)
+  # Get a summary of the created file
+  WDgrowth_tile_ncout
+  # close the file, writing data to disk
+  nc_close(WDgrowth_tile_ncout)
+  return(WDgrowth_tile_var)
+}
+
+# C. cmort_tile ----
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# tile output
+
+cmort_tile_df <- function(data){
+  cmort_tile <- data |>
+    slice(595:nrow(data)) |> 
+    mutate(year = 1:936, 
+           cmort = WDmort+WDkill) |>
+    select(year, cmort) 
+  cmort_tile_wid <- cmort_tile |> select(-year)
+  # create the netCDF filename 
+  name <- substr(deparse(substitute(data)), start = 8, stop = 18)
+  ppm <- substr(deparse(substitute(data)), start = 15, stop = 18)
+  site <- substr(deparse(substitute(data)), start = 11, stop = 13)
+  ncfname <- paste(paste0(here::here(),"/data/outputs_mod/nc_files/",ppm,"/",site, 
+                          "/BiomeEP_CBudget_cmort_",name, ".nc", sep=""))
+  # define dimensions
+  time <- as.array(seq(1,935,1))
+  time_dim <- ncdim_def("time","years",as.double(time)) 
+  # define variables
+  cmort_tile_var <- ncvar_def("cmort","kg C m-2 yr-1",list(time_dim),-999,
+                                 "Carbon Mass Flux lost from wood",prec="single")
+  # create netCDF file and put arrays
+  cmort_tile_ncout <- nc_create(ncfname,list(cmort_tile_var),force_v4=TRUE)
+  # put variables
+  cmort_tile_array <- simplify2array(cmort_tile_wid)
+  ncvar_put(cmort_tile_ncout,cmort_tile_var,cmort_tile_array)
+  # Get a summary of the created file
+  cmort_tile_ncout
+  # close the file, writing data to disk
+  nc_close(cmort_tile_ncout)
+  return(cmort_tile_var)
+}
+
 # Pools ----
 
 # 1. Carbon mass in vegetation by PFT ----
@@ -80,7 +193,7 @@ cveg_df <- function(data){
 # Units: kg C m-2
 # Timestep: annual
 # Dimensions: time
-# tile output
+# cohort output
 AGcwood_df <- function(data){
 AGcwood <- data |> 
   filter(PFT != 1) |>
@@ -196,23 +309,31 @@ cwood_size <- data |>
   group_by(dbh_bins,year) |>
   summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |> ungroup()
 if(site == "FIN") {
+  if(sim == "P0") {
   cwood_size_wid <- cwood_size |> 
     pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
     select(-year) |> 
-    mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+    mutate(`[150,200)`=0,`[200,250)`=0)
+  }
+  else{
+    cwood_size_wid <- cwood_size |> 
+      pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
+      select(-year) |> 
+      mutate(`[150,200)`=0,`[200,250)`=0,`[100,150)`=0)
+  }
 }
 if(site == "BIA") {
   if(sim == "P0") {
     cwood_size_wid <- cwood_size |> 
       pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0)
   }
   else{
     cwood_size_wid <- cwood_size |> 
       pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
   }
 }
 if(site == "BCI") {
@@ -220,20 +341,20 @@ if(site == "BCI") {
     cwood_size_wid <- cwood_size |> 
       pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0)
   }
   if(co2 == "eCO2") {
     if(sim == "P0"|sim == "P1") {
       cwood_size_wid <- cwood_size |> 
         pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
         select(-year) |> 
-        mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+        mutate(`[150,200)`=0,`[200,250)`=0)
     }
     else{
       cwood_size_wid <- cwood_size |> 
         pivot_wider(names_from = dbh_bins, values_from = cwood_size,values_fill = 0) |> arrange(year) |>
         select(-year) |> 
-        mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
+        mutate(`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
     }
   }
 }
@@ -282,23 +403,31 @@ nstem_size <- data |>
 unique(nstem_size$dbh_bins)
 length(unique(nstem_size$dbh_bins))
 if(site == "FIN") {
-nstem_size_wid <- nstem_size |> 
+  if(sim == "P0") {
+ nstem_size_wid <- nstem_size |> 
   pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
   select(-year) |> 
-  mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+  mutate(`[150,200)`=0,`[200,250)`=0)
+  }
+  else{
+    nstem_size_wid <- nstem_size |> 
+      pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
+      select(-year) |> 
+      mutate(`[150,200)`=0,`[200,250)`=0,`[100,150)`=0)
+  }
 }
 if(site == "BIA") {
   if(sim == "P0") {
   nstem_size_wid <- nstem_size |> 
     pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
     select(-year) |> 
-    mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+    mutate(`[150,200)`=0,`[200,250)`=0)
   }
   else{
     nstem_size_wid <- nstem_size |> 
       pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
   }
 }
 if(site == "BCI") {
@@ -306,20 +435,20 @@ if(site == "BCI") {
     nstem_size_wid <- nstem_size |> 
       pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0)
   }
   if(co2 == "eCO2") {
    if(sim == "P0"|sim == "P1") {
     nstem_size_wid <- nstem_size |> 
       pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0)
    }
    else{
     nstem_size_wid <- nstem_size |> 
       pivot_wider(names_from = dbh_bins, values_from = nstem_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
   }
  }
 }
@@ -605,13 +734,23 @@ WBgrowth_df <- function(data){
   name <- substr(deparse(substitute(data)), start = 8, stop = 18)
   ppm <- substr(deparse(substitute(data)), start = 15, stop = 18)
   site <- substr(deparse(substitute(data)), start = 11, stop = 13)
+  
+  params_tile$f_initialBSW <- 0.2
+  fecundity_growth <- data |>
+    filter(PFT != 1) |>
+    filter(layer == 1)  |>
+    mutate(fecundity = params_tile$f_initialBSW*seedC*density/10000) |>
+    select(cohort, year,cID, PFT, layer, fecundity)
+  
 WBgrowth <- data |> 
   filter(PFT != 1) |>
+  left_join(fecundity_growth) |>
   mutate(PFT=as.double(PFT)) |>
   group_by(PFT,year) |>
-  summarise(WBgrowth=sum(fwood*treeG*density/10000)) |> 
+  summarise(WBgrowth=sum(fwood*treeG*density/10000 + fecundity, na.rm = T)) |> 
   filter(year>510) |>
   mutate(year = year-510) |> left_join(PFT_order) |> ungroup()
+
 if(site == "FIN") {
 WBgrowth_wid <- WBgrowth |> select(c(year,WBgrowth,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
   pivot_wider(names_from = PFT, values_from = WBgrowth,values_fill = 0) |> arrange(year) |>
@@ -733,14 +872,24 @@ cmort_df <- function(data){
   name <- substr(deparse(substitute(data)), start = 8, stop = 18)
   ppm <- substr(deparse(substitute(data)), start = 15, stop = 18)
   site <- substr(deparse(substitute(data)), start = 11, stop = 13)
+  
+kill_low_density <- data |>
+    filter(PFT != 1) |>
+    mutate(nindivs = density/10000) |>
+    filter(nindivs <= 1.0E-6)  |> 
+    mutate(cmort_low = (sapwC+woodC)*(1 - deathrate)*density/10000)  |>
+    select(cohort, year,cID, PFT, layer,cmort_low)
+  
 cmort <- data |> 
   filter(PFT != 1) |>
+  left_join(kill_low_density) |>
+  mutate(cmort_low = ifelse(is.na(cmort_low),0,cmort_low)) |> 
   group_by(PFT,year) |>
-  #summarise(cmort=sum(c_deadtrees)) |> 
-  summarise(cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
+  reframe(cmort=sum((sapwC+woodC)*deathrate*density/10000 + cmort_low)) |>
   filter(year>510) |>
   mutate(PFT=as.double(PFT)) |>
   mutate(year = year-510) |> left_join(PFT_order) |> ungroup()
+
 if(site == "FIN") {
 cmort_wid <- cmort |> select(c(year,cmort,PFT_reorder)) |> rename(PFT=PFT_reorder) |>
   pivot_wider(names_from = PFT, values_from = cmort,values_fill = 0) |> arrange(year) |>
@@ -793,33 +942,52 @@ cmort_size_df <- function(data){
   site <- substr(deparse(substitute(data)), start = 11, stop = 13)
   sim = substr(deparse(substitute(data)), start = 8, stop = 9)
   co2 = substr(deparse(substitute(data)), start = 15, stop = 18)
+  
+  kill_low_density <- data |>
+    filter(PFT != 1) |>
+    mutate(nindivs = density/10000) |>
+    filter(nindivs <= 1.0E-6)  |> 
+    mutate(cmort_low = (sapwC+woodC)*(1 - deathrate)*density/10000)  |>
+    select(cohort, year,cID, PFT, layer,cmort_low)
+  
 cmort_size <- data |> 
   filter(PFT != 1) |>
+  left_join(kill_low_density) |>
+  mutate(cmort_low = ifelse(is.na(cmort_low),0,cmort_low)) |> 
   mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
   filter(year>510) |>
   mutate(year = year-510) |>
   group_by(dbh_bins,year) |>
   #summarise(cmort_size=sum(c_deadtrees)) |> 
-  summarise(cmort_size=sum((sapwC+woodC)*deathrate*density/10000)) |> 
+  summarise(cmort_size=sum((sapwC+woodC)*deathrate*density/10000 + cmort_low)) |> 
   ungroup()
-if(site == "FIN"|site == "BCI") {
+
+if(site == "FIN") {
+  if(sim == "P0") {
   cmort_size_wid <- cmort_size |> 
     pivot_wider(names_from = dbh_bins, values_from = cmort_size,values_fill = 0) |> arrange(year) |>
     select(-year) |> 
-    mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+    mutate(`[150,200)`=0,`[200,250)`=0)
+  }
+  else{
+    cmort_size_wid <- cmort_size |> 
+      pivot_wider(names_from = dbh_bins, values_from = cmort_size,values_fill = 0) |> arrange(year) |>
+      select(-year) |> 
+      mutate(`[150,200)`=0,`[200,250)`=0,`[100,150)`=0)
+  }
 }
 if(site == "BIA") {
   if(sim == "P0") {
     cmort_size_wid <- cmort_size |> 
       pivot_wider(names_from = dbh_bins, values_from = cmort_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0)
   }
   else{
     cmort_size_wid <- cmort_size |> 
       pivot_wider(names_from = dbh_bins, values_from = cmort_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
   }
 }
 if(site == "BCI") {
@@ -827,20 +995,20 @@ if(site == "BCI") {
     cmort_size_wid <- cmort_size |> 
       pivot_wider(names_from = dbh_bins, values_from = cmort_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0)
   }
   if(co2 == "eCO2") {
     if(sim == "P0"|sim == "P1") {
       cmort_size_wid <- cmort_size |> 
         pivot_wider(names_from = dbh_bins, values_from = cmort_size,values_fill = 0) |> arrange(year) |>
         select(-year) |> 
-        mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+        mutate(`[150,200)`=0,`[200,250)`=0)
     }
     else{
       cmort_size_wid <- cmort_size |> 
         pivot_wider(names_from = dbh_bins, values_from = cmort_size,values_fill = 0) |> arrange(year) |>
         select(-year) |> 
-        mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
+        mutate(`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
     }
   }
 }
@@ -944,24 +1112,32 @@ stemmort_size <- data |>
   mutate(year = year-510) |>
   group_by(dbh_bins,year) |>
   summarise(stemmort_size=sum(deathrate*density/10000)) |> ungroup()
-if(site == "FIN"|site == "BCI") {
+if(site == "FIN") {
+  if(sim == "P0") {
   stemmort_size_wid <- stemmort_size |> 
     pivot_wider(names_from = dbh_bins, values_from = stemmort_size,values_fill = 0) |> arrange(year) |>
     select(-year) |> 
-    mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+    mutate(`[150,200)`=0,`[200,250)`=0)
+  }
+  else{
+    stemmort_size_wid <- stemmort_size |> 
+      pivot_wider(names_from = dbh_bins, values_from = stemmort_size,values_fill = 0) |> arrange(year) |>
+      select(-year) |> 
+      mutate(`[150,200)`=0,`[200,250)`=0,`[100,150)`=0)
+  }
 }
 if(site == "BIA") {
   if(sim == "P0") {
     stemmort_size_wid <- stemmort_size |> 
       pivot_wider(names_from = dbh_bins, values_from = stemmort_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0)
   }
   else{
     stemmort_size_wid <- stemmort_size |> 
       pivot_wider(names_from = dbh_bins, values_from = stemmort_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
   }
 }
 if(site == "BCI") {
@@ -969,20 +1145,20 @@ if(site == "BCI") {
     stemmort_size_wid <- stemmort_size |> 
       pivot_wider(names_from = dbh_bins, values_from = stemmort_size,values_fill = 0) |> arrange(year) |>
       select(-year) |> 
-      mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+      mutate(`[150,200)`=0,`[200,250)`=0)
   }
   if(co2 == "eCO2") {
     if(sim == "P0"|sim == "P1") {
       stemmort_size_wid <- stemmort_size |> 
         pivot_wider(names_from = dbh_bins, values_from = stemmort_size,values_fill = 0) |> arrange(year) |>
         select(-year) |> 
-        mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0)
+        mutate(`[150,200)`=0,`[200,250)`=0)
     }
     else{
       stemmort_size_wid <- stemmort_size |> 
         pivot_wider(names_from = dbh_bins, values_from = stemmort_size,values_fill = 0) |> arrange(year) |>
         select(-year) |> 
-        mutate(`[0,1)`=0,`[1,5)`=0,`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
+        mutate(`[150,200)`=0,`[200,250)`=0,`[90,100)`=0)
     }
   }
 }

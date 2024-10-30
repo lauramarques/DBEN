@@ -3,8 +3,8 @@
 # tile level
 plantC_tile_fig <- function(data){
   fig <- data |> #BiomeE_P0_FIN_aCO2_annual_tile |>
-  slice(510+1:nrow(data)) |> 
-  mutate(year = 1:1020) |>
+  #slice(510+1:nrow(data)) |> 
+  #mutate(year = 1:1020) |>
   ggplot() + 
   geom_line(aes(x=year, y=plantC),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Plant C (kg C ", m^-2, ") "))) + 
@@ -18,8 +18,8 @@ return(fig)
 # tile level
 GPP_tile_fig <- function(data){
 fig <- data |> 
-  slice(510+1:nrow(data)) |> 
-  mutate(year = 1:1020) |>
+  #slice(510+1:nrow(data)) |> 
+  #mutate(year = 1:1020) |>
   ggplot() + 
   geom_line(aes(x=year, y=GPP),col="#377EB8") + 
   labs(x = "year", y = expression(paste("GPP (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -31,8 +31,8 @@ return(fig)
 ## Rauto ----
 Rauto_tile_fig <- function(data){
 fig <- data |> 
-  slice(510+1:nrow(data)) |> 
-  mutate(year = 1:1020) |>
+  #slice(510+1:nrow(data)) |> 
+  #mutate(year = 1:1020) |>
   ggplot() + 
   geom_line(aes(x=year, y=Rauto),col="#377EB8") + 
   labs(x = "year", y = expression(paste("Rauto (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -44,8 +44,8 @@ return(fig)
 ## Soil C ----
 soilC_tile_fig <- function(data){
 fig <- data |> 
-  slice(510+1:nrow(data)) |> 
-  mutate(year = 1:1020) |>
+  #slice(510+1:nrow(data)) |> 
+  #mutate(year = 1:1020) |>
   ggplot() + 
   geom_line(aes(x=year, y=soilC),col="#377EB8") + 
   labs(x = "year", y =expression(paste("Soil C (kg C ", m^-2, " ", yr^-1, ") "))) + 
@@ -91,11 +91,11 @@ fig <- data |>
 ## Carbon budget closure - tile ----
 CBud_tile_fig <- function(data){
 fig <- data |> 
-  filter(year > 542) |>
+  #filter(year > 542) |>
   mutate(Carbon_balance=WDgrow-WDmort,
          cwood = SapwoodC+WoodC,
-         #sumCB = ifelse(row_number() == 1, cwood, WDgrow+WDrepr-WDmort-WDkill),
-         sumCB = ifelse(row_number() == 1, cwood, WDgrow-WDmort-WDkill),
+         #sumCB = ifelse(row_number() == 1, cwood, WDgrow-WDmort-WDkill),
+         sumCB = ifelse(row_number() == 1, cwood, WDgrow+WDrepr-WDmort-WDkill),
          cumsumCB = cumsum(sumCB)) |>
   ggplot() + 
   geom_line(aes(x=year, y=cumsumCB),col="#377EB8") + 
@@ -107,18 +107,35 @@ return(fig)
 
 ## Carbon balance - cohorts ----
 CBal_cohort_fig <- function(data){
+  kill_low_density <- data |>
+    filter(PFT != 1) |>
+    mutate(nindivs = density/10000) |>
+    filter(nindivs <= 1.0E-6)  |> 
+    mutate(cmort_low = (sapwC+woodC)*(1 - deathrate)*density/10000)  |>
+    select(cohort, year,cID, PFT, layer,cmort_low)
+  
+  fecundity_growth <- data |>
+    filter(PFT != 1) |>
+    filter(layer == 1)  |>
+    mutate(fecundity = params_tile$f_initialBSW*seedC*density/10000) |>
+    select(cohort, year,cID, PFT, layer, fecundity)
+  
   fig <- data |> 
     filter(PFT != 1) |>
+    left_join(kill_low_density) |>
+    left_join(fecundity_growth) |>
+    mutate(cmort_low = ifelse(is.na(cmort_low),0,cmort_low)) |> 
     group_by(year) |>
-    summarise(WBgrowth=sum((fwood*treeG)*density/10000, na.rm = T),
-              #WBgrowth=sum((fwood*treeG)*density/10000 + fecundity, na.rm = T),
-              cmort=sum((sapwC+woodC)*deathrate*density/10000)) |>
-    filter(year > 542) |>
+    summarise(#WBgrowth=sum((fwood*treeG)*density/10000, na.rm = T),
+              WBgrowth=sum((fwood*treeG)*density/10000 + fecundity, na.rm = T),
+              cmort=sum((sapwC+woodC)*deathrate*density/10000 + cmort_low)) |>
+    #filter(year > 542) |>
     mutate(Carbon_balance=WBgrowth-cmort) |>
     ggplot() + 
     geom_line(aes(x=year, y=Carbon_balance),col="#377EB8") + 
     labs(x = "year", y = "Carbon_balance") +
     geom_hline(yintercept = 0, col="red", alpha=0.5) + 
+    scale_y_continuous(lim=c(-1,1)) +
     theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
   return(fig)
 }
@@ -145,10 +162,10 @@ fig <- data |>
   mutate(cmort_low = ifelse(is.na(cmort_low),0,cmort_low)) |> 
   group_by(year) |>
   summarise(cwood=sum((sapwC+woodC)*density/10000),
-            WBgrowth=sum((fwood*treeG)*density/10000, na.rm = T),
-            #WBgrowth=sum((fwood*treeG)*density/10000 + fecundity, na.rm = T),
+            #WBgrowth=sum((fwood*treeG)*density/10000, na.rm = T),
+            WBgrowth=sum((fwood*treeG)*density/10000 + fecundity, na.rm = T),
             cmort=sum((sapwC+woodC)*deathrate*density/10000 + cmort_low)) |>
-  filter(year > 542) |>
+  #filter(year > 542) |>
   mutate(sumCB = ifelse(row_number() == 1, cwood, WBgrowth-cmort),
          cumsumCB = cumsum(sumCB)) |>
   ggplot() + 
@@ -228,6 +245,22 @@ fig <- data |>
 return(fig)
 }
 
+# all PFTs together
+cwood_all_fig <- function(data){
+  fig <- data |>
+    filter(PFT != 1) |>
+    group_by(year) |>
+    summarise(cwood=sum((sapwC+woodC)*density/10000)) |> 
+    filter(year>510) |>
+    mutate(year = year-510) |>
+    ggplot() + 
+    geom_line(aes(x = year, y = cwood)) +
+    labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
+    theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10),
+                            title = element_text(size = 10),legend.position="right") 
+  return(fig)
+}
+
 ## 4. Carbon mass in wood by size class ----
 # cwood_size
 # Units: kg C m-2
@@ -238,11 +271,11 @@ cwood_size_fig <- function(data){
 fig <- data |> 
   filter(PFT != 1) |>
   mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
+  #filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   filter(year>510) |>
   mutate(year = year-510) |>
   group_by(dbh_bins,year) |>
   summarise(cwood_size=sum((sapwC+woodC)*density/10000)) |>
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   ggplot() + 
   geom_line(aes(x = year, y = cwood_size,col=dbh_bins)) +
   labs(x = "year", y = expression(paste("Carbon mass in wood (kg C ", m^-2, ") "))) + 
@@ -260,7 +293,7 @@ nstem_fig <- function(data){
 fig <- data |> 
   filter(PFT != 1) |>
   mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
+  #filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   filter(year>510) |>
   mutate(year = year-510) |>
   group_by(dbh_bins,year) |>
@@ -275,7 +308,6 @@ return(fig)
 nstem_pft_fig <- function(data){
   fig <- data |> 
     filter(PFT != 1) |>
-    filter(DBH >= 5) |>
     group_by(PFT,year) |>
     summarise(nstem_size=sum(density)) |> 
     filter(year>510) |>
@@ -284,6 +316,8 @@ nstem_pft_fig <- function(data){
     ggplot() + 
     geom_line(aes(x = year, y = nstem_size,col=PFT)) +
     labs(x = "year", y = expression(paste("Stem number (count ", ha^-1, ") "))) + 
+    scale_colour_manual(values = c("#7CAE00", "#00BFC4", "#C77CFF"),
+                        labels = c(2,3,4)) +
     theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
   return(fig)
 }
@@ -325,6 +359,8 @@ fig <- data |>
   ggplot() + 
   geom_line(aes(x = year, y = CA,col=PFT)) +
   labs(x = "year", y = expression(paste("Crown area (", m^-2, " ", m^-2, ") "))) + 
+  scale_colour_manual(values = c("#7CAE00", "#00BFC4", "#C77CFF"),
+                      labels = c(2,3,4)) +
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 return(fig)
 }
@@ -347,6 +383,8 @@ fig <- data |>
   ggplot() + 
   geom_line(aes(x = year, y = BA,col=PFT)) +
   labs(x = "year", y = expression(paste("Basal area (", m^-2, " ", ha^-1, ") "))) + 
+  scale_colour_manual(values = c("#7CAE00", "#00BFC4", "#C77CFF"),
+                      labels = c(2,3,4)) +
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 return(fig)
 }
@@ -456,7 +494,7 @@ cmort_size_fig <- function(data) {
 fig <- data |> 
   filter(PFT != 1) |>
   mutate(dbh_bins = cut(DBH, breaks = c(0,1,5,10,15,20,30,40,50,60,70,80,90,100,150,200),right=F)) |>
-  filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
+  #filter(dbh_bins!="[0,1)"&dbh_bins!="[1,5)") |>
   filter(year>510) |>
   mutate(year = year-510) |>
   group_by(dbh_bins,year) |>

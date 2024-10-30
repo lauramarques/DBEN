@@ -47,7 +47,7 @@ params_siml <- tibble(
   update_annualLAImax   = TRUE,
   do_closedN_run        = TRUE,
   do_reset_veg          = TRUE, # TRUE
-  dist_frequency        = 0, # 0, 100, 75, 50, 25, 15, 10
+  dist_frequency        = 10, # 0, 100, 75, 50, 25, 15, 10
   method_photosynth     = "pmodel",
   method_mortality      = "dbh"
 )
@@ -130,9 +130,9 @@ params_species <- tibble(
   leafLS        = rep(1,16), 
   LNbase        = c(9999,1.0E-3,0.8E-3,0.7E-3,0.4E-3,rep(0.5E-3,11)),  
   CNleafsupport = rep(80,16),
-  rho_wood      = c(9999,120,350,350,300,rep(300,11)), # c(9999,80,320,350,300,rep(300,11)),  
+  rho_wood      = c(9999,120,320,350,300,rep(300,11)), #c(9999,80,300,320,350,rep(300,11)),  #BiomeEP #c(9999,120,350,350,300,rep(300,11)), 
   taperfactor   = rep(0.75,16),
-  lAImax        = c(9999,2.0,3.0,3.0,3.5,rep(3.5,11)), # c(9999,2.0,3.2,3.3,3.5,rep(3.5,11)), 
+  lAImax        = c(9999,2.0,3.2,3.2,3.5,rep(3.5,11)), # biomeEP: c(9999,2.0,3.0,3.0,3.5,rep(3.5,11)), 
   tauNSC        = rep(3,16), 
   fNSNmax       = rep(5,16),                      
   phiCSA        = rep(0.25E-4,16),  
@@ -143,7 +143,7 @@ params_species <- tibble(
   CNroot0      = rep(40,16),  
   CNseed0      = rep(20,16),  
   Nfixrate0     = rep(0,16),   
-  NfixCost0     = rep(0,16), #(12,16)
+  NfixCost0     = rep(0,16),
   internal_gap_frac      = rep(0.1,16),
   # calibratable params
   kphio         = rep(0.05,16),
@@ -176,10 +176,10 @@ init_cohort <- tibble(
 )
 
 init_soil <- tibble( #list
-  init_fast_soil_C    = 0.0,    # 0.5, 
-  init_slow_soil_C    = 0.0,    # 40,   
-  init_Nmineral       = 0.015,  # 50.0E-3, 
-  N_input             = 0.0008  # 11.E-3
+  init_fast_soil_C    = 0.0,      # BiomeE: 0.5,  
+  init_slow_soil_C    = 0.0,       # BiomeE: 40,
+  init_Nmineral       = 0.015,  # BiomeE: 50.0E-3
+  N_input             = 0.0008    # BiomeE: 11.E-3
 )
 
 df_soiltexture <- bind_rows(
@@ -194,7 +194,7 @@ biomee_forcing_BIA
 df_forcing <- biomee_forcing_BIA
 
 # Define CO2 ----
-df_forcing$co2 <- 412 # CO2 levels: 412 ppm and 562 ppm
+df_forcing$co2 <- 562 # CO2 levels: 412 ppm and 562 ppm
 
 # Repeat mean seasonal cycle `nyears` times # Add harvest forcing to drivers. 
 nyears <- params_siml$nyeartrend/length(unique(biomee_forcing_BIA$year))
@@ -228,8 +228,8 @@ out <- runread_biomee_f(
 biomee_annual_tile <- out$data[[1]]$output_annual_tile
 biomee_annual_cohorts <- out$data[[1]]$output_annual_cohorts
 
-biomee_annual_tile <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BIA_aCO2_annual_tile.csv")
-biomee_annual_cohorts <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BIA_aCO2_annual_cohorts.csv")
+#biomee_annual_tile <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BIA_aCO2_annual_tile.csv")
+#biomee_annual_cohorts <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BIA_aCO2_annual_cohorts.csv")
 
 # Figures ----
 source("/home/laura/DBEN/analysis/03_DBEN_figures.R")
@@ -249,14 +249,51 @@ soilC_tile_fig(biomee_annual_tile)
 ## Woody biomass growth
 WDgrow_tile_fig(biomee_annual_tile)
 
+biomee_annual_tile |> 
+  mutate(WDgrow = ifelse(WDgrow <0, 0, WDgrow)) |>
+  ggplot() + 
+  geom_line(aes(x=year, y=WDgrow),col="#377EB8") + 
+  labs(x = "year", y = expression(paste("Woody biomass growth (kg C ", m^-2, " ", yr^-1, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+
 ## Mortality
 WDmort_tile_fig(biomee_annual_tile)
+
+biomee_annual_tile |>  
+  mutate(WDmort = ifelse(WDmort <0, 0, WDmort)) |>
+  mutate(WDmort = ifelse(WDmort >10, 0, WDmort)) |>
+  ggplot() + 
+  geom_line(aes(x=year, y=WDmort),col="#377EB8") + 
+  labs(x = "year", y = expression(paste("Carbon mass flux lost (kg C ", m^-2, " ", yr^-1, ") "))) + 
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
+
+gpp_fig(biomee_annual_cohorts)
+BAgrowth_fig(biomee_annual_cohorts)
+
+
 
 ## Carbon balance
 CBal_tile_fig(biomee_annual_tile)
 
 ## Carbon budget closure
 CBud_tile_fig(biomee_annual_tile)
+
+biomee_annual_tile |> 
+  filter(year > 595) |>
+  mutate(WDgrow = ifelse(WDgrow <0, 0, WDgrow),
+         WDmort = ifelse(WDmort <0, 0, WDmort),
+         Carbon_balance=WDgrow-WDmort,
+         cwood = SapwoodC+WoodC,
+         #sumCB = ifelse(row_number() == 1, cwood, WDgrow-WDmort-WDkill),
+         sumCB = ifelse(row_number() == 1, cwood, WDgrow+WDrepr-WDmort-WDkill),
+         cumsumCB = cumsum(sumCB)) |>
+  ggplot() + 
+  geom_line(aes(x=year, y=cumsumCB),col="#377EB8",size =2) + 
+  geom_line(aes(x=year, y=cwood),col="purple",size=1) +
+  labs(x = "year", y = "Carbon budget") + 
+  #scale_y_continuous(limits = c(0,50)) +
+  #scale_x_continuous(limits = c(550,600)) +
+  theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
 # Carbon balance - cohort
 CBal_cohort_fig(biomee_annual_cohorts)
@@ -274,6 +311,8 @@ AGcwood_fig(biomee_annual_cohorts)
 
 ## 3. Carbon mass in wood by PFT ----
 cwood_fig(biomee_annual_cohorts)
+
+cwood_all_fig(biomee_annual_cohorts)
 
 ## 4. Carbon mass in wood by size class ----
 cwood_size_fig(biomee_annual_cohorts)

@@ -43,6 +43,28 @@ PFT_order
 
 source("/home/laura/DBEN/analysis/04_DBEN_variables.R")
 
+# Carbon budget closure ----
+## A. cwood_tile ----
+# Units: kg C m-2
+# Timestep: annual
+# Dimensions: time
+# tile output
+cwood_tile_df(BiomeE_P0_FIN_aCO2_annual_tile)
+
+## B. WDgrowth_tile ----
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# tile output
+WDgrowth_tile_df(BiomeE_P0_FIN_aCO2_annual_tile)
+
+## C. cmort_tile ----
+# Units: kg C m-2 yr-1
+# Timestep: annual
+# Dimensions: time
+# tile output
+cmort_tile_df(BiomeE_P0_FIN_aCO2_annual_tile)
+
 # Pools ----
 # 1. Carbon mass in vegetation by PFT ----
 # cveg = Stem, coarse roots, fine roots, branches, leaves
@@ -314,6 +336,8 @@ BiomeE_P5_FIN_eCO2_annual_cohorts <- read.csv(paste0(here::here(), "/data/output
 
 BiomeE_P6_FIN_eCO2_annual_tile <- read.csv(paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS6_FIN_eCO2_annual_tile.csv"))
 BiomeE_P6_FIN_eCO2_annual_cohorts <- read.csv(paste0(here::here(), "/data/outputs_mod/562ppm/BiomeE_PS6_FIN_eCO2_annual_cohorts.csv"))
+
+source("/home/laura/DBEN/analysis/04_DBEN_variables.R")
 
 # Pools ----
 # 1. Carbon mass in vegetation by PFT ----
