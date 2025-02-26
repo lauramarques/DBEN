@@ -47,7 +47,7 @@ params_siml <- tibble(
   update_annualLAImax   = TRUE,
   do_closedN_run        = TRUE,
   do_reset_veg          = TRUE, # TRUE
-  dist_frequency        = 10, # 0, 100, 75, 50, 25, 15, 10
+  dist_frequency        = 0, # 0, 100, 75, 50, 25, 15, 10
   method_photosynth     = "pmodel",
   method_mortality      = "dbh"
 )
@@ -190,13 +190,12 @@ df_soiltexture <- bind_rows(
 )
 
 ## Define forcing data ----
-#biomee_forcing_FIN <- read.csv(paste0(here::here(), "/data/inputs/biomee_forcing_FIN.csv"))
-biomee_forcing_FIN <- read.csv("/home/laura/DBEN/data/inputs/biomee_forcing_FIN.csv")
+biomee_forcing_FIN <- read.csv(paste0(here::here(), "/data/inputs/biomee_forcing_FIN.csv"))
 biomee_forcing_FIN
 df_forcing <- biomee_forcing_FIN
 
 ## Define CO2 ----
-df_forcing$co2 <- 562 # CO2 levels: 412 ppm and 562 ppm
+df_forcing$co2 <- 412 # CO2 levels: 412 ppm and 562 ppm
 
 # Repeat mean seasonal cycle `nyears` times 
 # Add harvest forcing to drivers. 
@@ -231,8 +230,8 @@ out <- runread_biomee_f(
 biomee_annual_tile <- out$data[[1]]$output_annual_tile
 biomee_annual_cohorts <- out$data[[1]]$output_annual_cohorts
 
-biomee_annual_tile <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
-biomee_annual_cohorts <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv"))
+#biomee_annual_tile <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_tile.csv"))
+#biomee_annual_cohorts <- read.csv(paste0(here::here(), "/data/outputs_mod/412ppm/BiomeE_P0_FIN_aCO2_annual_cohorts.csv"))
 
 # Figures ----
 source("/home/laura/DBEN/analysis/03_DBEN_figures.R")
@@ -294,18 +293,19 @@ CBal_tile_fig(biomee_annual_tile)
 CBud_tile_fig(biomee_annual_tile)
 
 biomee_annual_tile |> 
-  filter(year > 595) |>
-  mutate(Carbon_balance=WDgrow-WDmort,
+  #filter(year > 595) |>
+  slice(544:nrow(biomee_annual_tile)) |> 
+  mutate(year = 1:987,
          cwood = SapwoodC+WoodC,
          #cwood2 = ifelse(year<650, predict(loess(cwood ~ year, span = .05)),cwood),
          sumCB = ifelse(row_number() == 1, cwood, WDgrow+WDrepr-WDmort-WDkill),
          cumsumCB = cumsum(sumCB)) |>
   ggplot() + 
-  geom_line(aes(x=year, y=cumsumCB),col="#377EB8",size =2) + 
-  geom_line(aes(x=year, y=cwood),col="purple",size=1) +
+  geom_line(aes(x=year, y=cumsumCB),col="#377EB8") + 
+  geom_line(aes(x=year, y=cwood),col="purple") +
   labs(x = "year", y = "Carbon budget") + 
-  #scale_y_continuous(limits = c(0,50)) +
-  #scale_x_continuous(limits = c(540,1000)) +
+  scale_y_continuous(limits = c(0,50)) +
+  scale_x_continuous(limits = c(1,989)) +
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
 # Carbon balance - cohort

@@ -228,8 +228,8 @@ out <- runread_biomee_f(
 biomee_annual_tile <- out$data[[1]]$output_annual_tile
 biomee_annual_cohorts <- out$data[[1]]$output_annual_cohorts
 
-#biomee_annual_tile <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BIA_aCO2_annual_tile.csv")
-#biomee_annual_cohorts <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BIA_aCO2_annual_cohorts.csv")
+biomee_annual_tile <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BIA_aCO2_annual_tile.csv")
+biomee_annual_cohorts <- read.csv("/home/laura/DBEN/data/outputs_mod/412ppm/BiomeE_P0_BIA_aCO2_annual_cohorts.csv")
 
 # Figures ----
 source("/home/laura/DBEN/analysis/03_DBEN_figures.R")
@@ -279,7 +279,7 @@ CBal_tile_fig(biomee_annual_tile)
 CBud_tile_fig(biomee_annual_tile)
 
 biomee_annual_tile |> 
-  filter(year > 595) |>
+  filter(year > 560) |>
   mutate(WDgrow = ifelse(WDgrow <0, 0, WDgrow),
          WDmort = ifelse(WDmort <0, 0, WDmort),
          Carbon_balance=WDgrow-WDmort,
@@ -291,15 +291,16 @@ biomee_annual_tile |>
   geom_line(aes(x=year, y=cumsumCB),col="#377EB8",size =2) + 
   geom_line(aes(x=year, y=cwood),col="purple",size=1) +
   labs(x = "year", y = "Carbon budget") + 
-  #scale_y_continuous(limits = c(0,50)) +
-  #scale_x_continuous(limits = c(550,600)) +
+  scale_y_continuous(limits = c(0,50)) +
+  scale_x_continuous(limits = c(542,900)) +
   theme_classic() + theme(axis.text = element_text(size = 10),axis.title = element_text(size = 10)) 
 
 # Carbon balance - cohort
 CBal_cohort_fig(biomee_annual_cohorts)
 
 ## Carbon budget closure - cohort
-CBud_cohort_fig(biomee_annual_cohorts)
+CBud_cohort_fig(biomee_annual_cohorts)  +
+  scale_x_continuous(limits = c(542,900))
 
 ## Pools: ----
 
